@@ -21,6 +21,11 @@ cd ansible
 ansible-playbook main.yml
 ```
 
+and restart server
+```
+# reboot
+```
+
 append to `/etc/bashrc`
 ```
 if [ -f /opt/auth/shared/bash.sh ]; then
@@ -28,12 +33,13 @@ if [ -f /opt/auth/shared/bash.sh ]; then
 fi
 ```
 
-append to `/etc/sudoers`
+append to `/etc/sudoers` or use `visudo`
 ```
 %auth ALL=(auth) NOPASSWD: /opt/auth/wrappers/ssh.py
 ```
 
 ### SSH
+edit `/etc/ssh/sshd`:
 ```
 # AuthorizedKeysFile /etc/keys/%u_authorized_keys
 PermitRootLogin without-password
@@ -134,6 +140,7 @@ auth-add-host --project powerrangers --server-name aws-eu-reserve --ip 3.1.1.2
 
 auth-add-host --project drugstore --server-name aws-eu-prod --ip 4.1.1.1 --port 25 --user dealer --nosudo
 ```
+
 
 ### Road Map
 
