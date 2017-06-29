@@ -1,0 +1,8 @@
+---
+- name: Install common utilites via yum...
+  yum: name={{ item }} state=present
+  with_items: "{{ common_utils_yum }}"
+
+
+- name: Remove sysstat cron task...
+  file: state=absent dest=/etc/cron.d/sysstat

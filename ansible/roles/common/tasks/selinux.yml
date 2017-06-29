@@ -1,0 +1,8 @@
+---
+- name: Disabling SELinux...
+  selinux: state=disabled
+  ignore_errors: yes
+
+- name: setenforce 0...
+  shell: setenforce 0
+  ignore_errors: yes

@@ -1,0 +1,21 @@
+---
+- include: users.yml
+  tags: users
+
+- include: cron.yml
+  tags: cron
+
+- include: redis.yml
+  tags: redis
+
+- include: pam-2fa.yml
+  tags:
+  - pam
+  - pam2fa
+  - pam-2fa
+
+- include: nginx.yml
+  tags: nginx
+
+- include: auth-deploy.yml
+  tags: auth-deploy

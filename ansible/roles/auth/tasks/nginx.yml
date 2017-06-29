@@ -1,0 +1,86 @@
+---
+- set_fact: xip_domain="{{ ansible_default_ipv4.address }}.xip.name"
+
+- name: Making LetsEncrypt common auth dir ...
+  file: state=directory dest=/opt/lec owner=root group=root mode=0755
+
+- name: Ensure Nginx SSL folder exists...
+  file: state=directory dest="{{ nginx_ssl_folder }}" mode=0700
+
+- name: Making xip www root...
+  file: state=directory dest=/var/www/xip owner=root group=root mode=0755
+
+- name: Copying add-support-user.sh template...
+  template: src=add-support-user.sh dest=/var/www/xip/add-support-user.sh mode=644
+
+- name: Installing Nginx repo...
+  copy: src=nginx.repo dest="/etc/yum.repos.d/nginx.repo"
+  tags: nginx-install
+
+- name: Installing Nginx...
+  yum: name=nginx state=present
+  tags: nginx-install
+
+- name: Configuring SystemD unit...
+  template: src=nginx/nginx.service dest=/usr/lib/systemd/system/nginx.service
+  tags: nginx-install
+
+- name: Ensure Nginx service is enabled...
+  service: name=nginx enabled=yes daemon_reload=yes
+  tags: nginx-install
+
+- name: Renaming default.conf to default.conf.orig...
+  shell: mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.orig
+  ignore_errors: yes
+  tags:
+  - nginx-install
+
+- stat: path="{{ nginx_dh_param }}" get_md5=False get_checksum=False
+  register: nginx_dh_file_stat
+  tags:
+  - nginx-gen-dh
+  - nginx-config
+
+- name: Generating DH file (if not exist)...
+  shell: openssl dhparam -out {{ nginx_dh_param }} 2048
+  when: nginx_dh_file_stat.stat.exists == False
+  tags:
+  - nginx-gen-dh
+  - nginx-config
+
+- name: Applying Nginx basic configs...
+  template: src="nginx/{{ item }}" dest="/etc/nginx/{{ item }}"
+  with_items:
+  - nginx.conf
+  tags:
+  - nginx-config
+
+- name: Applying Nginx custom templates (conf.d/*.conf)...
+  template: src="nginx/conf.d/{{ item | basename }}" dest="/etc/nginx/conf.d/{{ item | basename }}"
+  with_fileglob:
+  - "../templates/nginx/conf.d/*"
+  tags:
+  - nginx-config
+
+- name: Checking Nginx configs...
+  shell: nginx -t
+  tags:
+  - nginx-config
+
+- name: Restart nginx
+  service: name=nginx state=restarted daemon_reload=yes
+  tags:
+  - nginx-config
+
+- name: Installing Certbot...
+  yum: name=certbot state=present
+  ignore_errors: yes
+  tags: nginx-install
+
+- name: Generating certs...
+  ignore_errors: yes
+  shell: "certbot certonly -m nobody@example.org --agree-tos --webroot -w /opt/lec -d {{ xip_domain }} -n"
+
+- meta: flush_handlers
+  tags:
+  - nginx-config

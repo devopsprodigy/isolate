@@ -1,0 +1,10 @@
+---
+- name: Install 2FA PAM utilites via yum...
+  yum: name={{ item }} state=present update_cache=yes
+  with_items:
+  - liboath
+  - gen-oath-safe
+  - pam_oath
+
+- name: Ensure oath etc dir exist...
+  file: dest=/etc/oath state=directory owner=root group=root mode=0700

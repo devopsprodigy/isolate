@@ -1,0 +1,4 @@
+---
+auth_default_user: auth
+nginx_ssl_folder: /etc/nginx/ssl
+nginx_dh_param:   /etc/nginx/ssl/dhparam.pem

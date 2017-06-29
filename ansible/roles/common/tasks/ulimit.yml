@@ -1,0 +1,3 @@
+---
+- name: Releasing ulimit...
+  copy: src=unlimited-nrpoc-nofile.conf dest=/etc/security/limits.conf

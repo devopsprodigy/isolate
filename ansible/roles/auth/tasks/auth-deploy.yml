@@ -1,0 +1,37 @@
+---
+- name: Ensure auth dir exist...
+  file: state=directory dest={{ deploy_path }} mode=0750 owner=auth group=auth
+
+- name: Pulling changes on remote server...
+  become: yes
+  become_user: auth
+  git: repo={{ git_repo }}
+    version={{ git_branch }}
+    dest={{ deploy_path }}
+    accept_hostkey=yes
+    force=no
+    recursive=yes
+    umask=077
+
+- name: Set deploy flag...
+  become: yes
+  become_user: auth
+  file:
+    path: "{{ deploy_path }}/.deploy"
+    state: touch
+    mode: "u+rw,g+rw,o-rwx"
+
+- name: Installing pip requirements.txt...
+  pip: requirements="{{ deploy_path }}/requirements.txt" umask=0022
+
+- name: Executing deploy script...
+  shell: "bash --norc {{ deploy_path }}/scripts/fix-perms.sh"
+  become: yes
+  become_user: auth
+
+- name: Set deploy flag...
+  become: yes
+  become_user: auth
+  file:
+    path: "{{ deploy_path }}/.deploy"
+    state: absent

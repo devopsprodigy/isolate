@@ -1,0 +1,12 @@
+!.gitignore
+keys/*
+logs/*
+*~
+.DS_Store
+.idea/
+__pycache__/
+*.pyc
+.coverage
+**/.coverage
+.deploy
+shared/support-user-setup.sh

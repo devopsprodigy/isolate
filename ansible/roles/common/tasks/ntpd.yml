@@ -1,0 +1,10 @@
+---
+- name: Check ntpd enabled CentOS...
+  service: name=ntpd state=started enabled=yes
+  when: ansible_os_family == "RedHat"
+
+- name: Check ntpd enabled Debian...
+  service: name=ntp state=started enabled=yes
+  when: ansible_os_family == "Debian"
+
+- meta: flush_handlers

@@ -1,0 +1,8 @@
+---
+# Install common.sysctl (by-default) as /etc/sysctl.conf and apply
+
+- name: Copying sysctl.conf...
+  template: src="{{ sysctl_profile | default('common') }}.sysctl" dest=/etc/sysctl.conf backup=yes
+  notify: apply sysctl
+
+- meta: flush_handlers

@@ -1,0 +1,5 @@
+set historylog
+set nowrap
+set suspend
+set tabsize 4
+set tabstospaces

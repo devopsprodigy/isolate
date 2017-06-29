@@ -1,0 +1,18 @@
+---
+- name: Generating new password...
+  local_action: shell pwgen 14
+  register: pwgen_run
+  become: no
+
+- set_fact: redis_pass="{{ pwgen_run.stdout }}"
+
+- name: Install Redis via yum...
+  yum: name={{ item }} state=present update_cache=yes
+  with_items:
+  - redis
+
+- name: Apply Redis configs...
+  template: src=redis.conf dest=/etc/redis.conf owner=root group=redis mode=0640
+
+- name: Restart Redis...
+  service: name=redis state=restarted enabled=yes

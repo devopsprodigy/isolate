@@ -1,0 +1,30 @@
+---
+# Task adapted for using with Centos 6 and 7
+
+- name: Stopping Firewalld...
+  service: name=firewalld state=stopped enabled=no
+  ignore_errors: yes
+  when:
+  - ansible_distribution == "CentOS"
+  - ansible_distribution_major_version == "7"
+
+- name: Installing iptables-services...
+  yum: name=iptables-services state=present update_cache=yes
+  when:
+  - ansible_distribution == "CentOS"
+  - ansible_distribution_major_version == "7"
+
+- name: SystemD click click...
+  shell: systemctl daemon-reload
+  when:
+  - ansible_distribution == "CentOS"
+  - ansible_distribution_major_version == "7"
+
+- name: Installing iptables rules...
+  template: src="{{ firewall_profile | default('common') }}.iptables" dest=/etc/sysconfig/iptables backup=yes
+  notify: restore iptables
+
+- name: Starting iptables...
+  service: name=iptables enabled=yes state=started
+
+- meta: flush_handlers

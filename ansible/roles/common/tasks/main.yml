@@ -1,0 +1,39 @@
+---
+- include: ansible.yml
+  tags:
+  - ansible
+
+- include: selinux.yml
+  tags: selinux
+  when: ansible_distribution == "CentOS"
+
+- include: upgrade-all.yml
+  when: update_all_pkgs | default(false)
+  tags: upgrade-all
+
+- include: utils.yml
+  tags: utils
+
+- include: ntpd.yml
+  tags:
+  - ntpd
+  - ntp
+
+- include: hostname.yml
+  tags: hostname
+
+- include: ulimit.yml
+  tags: ulimit
+
+- include: sysctl.yml
+  tags: sysctl
+
+- name: Apply ~/.nanorc...
+  copy: src=nanorc dest="~/.nanorc"
+  tags: nanorc
+
+- include: firewall.yml
+  tags: firewall
+
+- meta: flush_handlers
+  tags: always

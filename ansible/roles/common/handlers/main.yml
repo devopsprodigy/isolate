@@ -1,0 +1,7 @@
+---
+- name: apply sysctl
+  shell: sysctl -p /etc/sysctl.conf
+  ignore_errors: true
+
+- name: restore iptables
+  shell: iptables-restore < /etc/sysconfig/iptables
