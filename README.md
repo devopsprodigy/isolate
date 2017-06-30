@@ -84,7 +84,6 @@ sed -i -e 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication 
 append to `/etc/ssh/sshd_config`
 
 ```
-
 Match Group auth
     AuthenticationMethods keyboard-interactive
 ```
