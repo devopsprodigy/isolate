@@ -246,7 +246,6 @@ class AuthHelper(object):
     def _init_env_vars(self):
         # Main config options
         self.AUTH_DATA_ROOT = os.getenv('AUTH_DATA_ROOT', '/opt/auth')
-        self.AUTH_DATA_SQLITE = os.getenv('AUTH_DATA_SQLITE', '/opt/auth/shared/hosts-db.sqlite3')
         self.AUTH_DEBUG = str2bool(os.getenv('AUTH_DEBUG', False))
 
         self.USER = os.getenv('USER', 'USER_ENV_NOT_SET')
