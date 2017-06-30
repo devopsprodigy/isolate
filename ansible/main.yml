@@ -8,7 +8,7 @@
       tags: common
 
     - role: auth
-      git_repo: https://github.com/iHile/isolate.git
+      git_repo: https://github.com/itsumma/isolate.git
       git_branch: master
       deploy_path: /opt/auth
       tags: auth
