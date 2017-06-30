@@ -39,7 +39,7 @@ append to `/etc/sudoers` or use `visudo`
 ```
 
 ### SSH
-edit `/etc/ssh/sshd`:
+edit `/etc/ssh/sshd_config`:
 ```
 # AuthorizedKeysFile /etc/keys/%u_authorized_keys
 PermitRootLogin without-password
@@ -76,9 +76,12 @@ auth    required    pam_oath.so usersfile=/etc/oath/users.oath window=20 digits=
 auth    include     postlogin
 ```
 
-append to `/etc/ssh/sshd_config`
 ```
-ChallengeResponseAuthentication yes
+sed -i -e 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/g' /etc/ssh/sshd_config
+```
+append to `/etc/ssh/sshd_config`
+
+```
 
 Match Group auth
     AuthenticationMethods keyboard-interactive
