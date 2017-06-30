@@ -119,10 +119,7 @@ gen-oath-safe username hotp
 
 #### add server
 ```
-$ auth-add-server --server_name main-prod --project test \
-    --ip <server_ip> --port 22 --user root --proxy-id 12332122 \
-    --nosudo
-
+$ auth-add-host --project starwars --server-name sel-msk-prod --ip 1.1.1.1
 Database updated
 ```
 
