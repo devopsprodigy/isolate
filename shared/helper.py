@@ -112,7 +112,9 @@ class IsolateRedisHosts(object):
         return self.hosts_dump
 
     def get_projects(self):
-        return list(sorted(set(self.projects)))
+        print(json.dumps(self.projects, indent=4))
+
+        return self.projects
 
 
 class ServerConnection(object):
@@ -231,7 +233,6 @@ class AuthHelper(object):
         self.uuid = str(uuid4())
         self.projects = None
         self.time_start = time()
-        self.backend = os.getenv('ISOLATE_BACKEND', 'redis')
         self.args = args
         self.unknown_args = unknown_args
         self._init_env_vars()
@@ -295,6 +296,7 @@ class AuthHelper(object):
 
     def _init_env_vars(self):
         # Main config options
+        self.ISOLATE_BACKEND = os.getenv('ISOLATE_BACKEND', 'redis')
         self.ISOLATE_DATA_ROOT = os.getenv('ISOLATE_DATA_ROOT', '/opt/auth')
         self.ISOLATE_DEBUG = str2bool(os.getenv('ISOLATE_DEBUG', False))
 
@@ -318,16 +320,16 @@ class AuthHelper(object):
     def _load_data(self):
         self.hosts_dump = []
         self.projects = []
-        if self.backend == 'redis':
+        if self.ISOLATE_BACKEND == 'redis':
             db = IsolateRedisHosts()
-        elif self.backend == 'zabbix':
+        elif self.ISOLATE_BACKEND == 'zabbix':
             db = IsolateZabbixHosts()
         else:
             LOGGER.critical('Incorrect backend')
             sys.exit(1)
 
-        self.projects = list(sorted(set(db.get_hosts())))
-        self.hosts_dump = sorted(db.get_projects(), key=itemgetter('project_name'))
+        self.projects = list(sorted(set(db.get_projects())))
+        self.hosts_dump = sorted(db.get_hosts(), key=itemgetter('project_name'))
 
         LOGGER.debug('_load_data')
         LOGGER.debug(json.dumps(self.hosts_dump, indent=4))
