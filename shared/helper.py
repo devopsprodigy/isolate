@@ -40,8 +40,8 @@ def init_args():
     arg_parser.add_argument('sargs', type=str, nargs='+',
                             help='[search server_id | go project | go project server_name]')
     arg_parser.add_argument('--helper-debug', action='store_true')
-    arg_parser_search = arg_parser.add_argument_group('Search', 's <query> [opts]')
-    arg_parser_go = arg_parser.add_argument_group('Go', 'g <project|host> [server_name|server_ip] [opts]')
+    arg_parser.add_argument_group('Search', 's <query> [opts]')
+    arg_parser.add_argument_group('Go', 'g <project|host> [server_name|server_ip] [opts]')
 
     # Unknown args bypassed to ssh.py wrapper
     args, unknown_args = arg_parser.parse_known_args()
@@ -286,7 +286,7 @@ class AuthHelper(object):
     def _search_in_item(self, **kwargs):
         item = kwargs.get('item')
         item_keys = item.keys()
-        query_src = kwargs.get('query_src')
+        # query_src = kwargs.get('query_src')
         query_lower = kwargs.get('query_lower')
 
         # project_id - is bad idea
