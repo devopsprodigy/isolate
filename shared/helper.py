@@ -22,8 +22,10 @@ logging.basicConfig(stream=sys.stderr, level=logging.INFO, format=LOG_FORMAT,
                     datefmt='%H:%M:%S %d-%m-%Y')
 
 LOGGER = logging.getLogger('helper')
-ZabbixAPI_LOGGER = logging.getLogger('ZabbixAPI')
-ZabbixAPI_LOGGER.setLevel(logging.WARN)
+pyzabbix_LOGGER = logging.getLogger('pyzabbix')
+pyzabbix_LOGGER.setLevel(logging.WARN)
+pyzabbix_requests_LOGGER = logging.getLogger('requests.packages.urllib3.connectionpool')
+pyzabbix_requests_LOGGER.setLevel(logging.WARN)
 
 
 def str2bool(s):
