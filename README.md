@@ -118,6 +118,37 @@ gen-oath-safe username hotp
 # Example: HOTP username - d7dc876e503ec498e532c331f3906153318ec565
 ```
 
+### Data sources
+
+append to `/etc/bashrc`
+```
+ISOLATE_BACKEND=redis; # or zabbix
+export $ISOLATE_BACKEND;
+```
+
+#### Redis
+
+```
+ISOLATE_REDIS_HOST="127.0.0.1";
+ISOLATE_REDIS_PORT="6379";
+ISOLATE_REDIS_PASS="te2uth4dohLi8i"; # /etc/redis.conf
+export $ISOLATE_REDIS_HOST;
+export $ISOLATE_REDIS_PORT;
+export $ISOLATE_REDIS_PASS;
+```
+
+#### Zabbix
+
+```
+ISOLATE_ZABBIX_URL="http://zabbix.95.213.200.160.xip.name"
+ISOLATE_ZABBIX_USER="isolate"
+ISOLATE_ZABBIX_PASS="aZ1eil2ooz4Iefah"
+export $ISOLATE_ZABBIX_URL;
+export $ISOLATE_ZABBIX_USER;
+export $ISOLATE_ZABBIX_PASS;
+```
+
+
 #### add server
 ```
 $ auth-add-host --project starwars --server-name sel-msk-prod --ip 1.1.1.1
