@@ -330,8 +330,8 @@ class AuthHelper(object):
             LOGGER.critical('Incorrect backend')
             sys.exit(1)
 
-        self.projects = list(sorted(set(db.get_projects())))
         self.hosts_dump = sorted(db.get_hosts(), key=itemgetter('project_name'))
+        self.projects = list(sorted(set(db.get_projects())))
 
         LOGGER.debug('_load_data')
         LOGGER.debug(json.dumps(self.hosts_dump, indent=4))
