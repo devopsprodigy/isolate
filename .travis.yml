@@ -12,6 +12,7 @@ before_install:
 
 script:
  - docker run -v $(pwd):/mnt koalaman/shellcheck -s bash -e SC1091,SC1090 shared/bash.sh shared/bootstrap.sh scripts/fix-perms.sh
+ - docker run -v $(pwd):/code eeacms/pyflakes
 
 matrix:
   fast_finish: true
