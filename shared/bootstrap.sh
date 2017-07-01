@@ -42,7 +42,7 @@ auth_callback () {
         mkdir -p "${SESS_DIR}";
     fi
 
-    export AUTH_SESSION=$(mktemp "${SESS_DIR}/ssh_XXXXXXXXX");
+    AUTH_SESSION=$(mktemp "${SESS_DIR}/ssh_XXXXXXXXX");
     trap auth_callback_cleanup SIGHUP SIGINT SIGTERM EXIT;
 
     "${@}";
