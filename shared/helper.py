@@ -68,8 +68,6 @@ class IsolateZabbixHosts(object):
         self.hosts_dump = list()
         self.hosts_dict = dict()
         self.projects = list()
-        # self.zapi = ZabbixAPI("http://zabbix.95.213.200.160.xip.name")
-        # self.zapi.login("isolate", "aZ1eil2ooz4Iefah")
         self.zapi = ZabbixAPI(os.getenv('ISOLATE_ZABBIX_URL'))
         self.zapi.login(os.getenv('ISOLATE_ZABBIX_USER'), os.getenv('ISOLATE_ZABBIX_PASS'))
 
