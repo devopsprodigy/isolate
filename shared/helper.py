@@ -68,8 +68,10 @@ class IsolateZabbixHosts(object):
         self.hosts_dump = list()
         self.hosts_dict = dict()
         self.projects = list()
-        self.zapi = ZabbixAPI("http://95.213.194.119/zabbix")
-        self.zapi.login("isolate", "xaighoF2aemaehee")
+        # self.zapi = ZabbixAPI("http://zabbix.95.213.200.160.xip.name")
+        # self.zapi.login("isolate", "aZ1eil2ooz4Iefah")
+        self.zapi = ZabbixAPI(os.getenv('ISOLATE_ZABBIX_URL'))
+        self.zapi.login(os.getenv('ISOLATE_ZABBIX_USER'), os.getenv('ISOLATE_ZABBIX_PASS'))
 
     def get_hosts(self):
         for h in self.zapi.hostinterface.get(output="extend", selectHosts=["host"], filter={"main": 1, "type": 1}):
@@ -430,7 +432,7 @@ class AuthHelper(object):
             'project_name': 8,
             'server_name': 12,
             'server_id': 6,
-            'last_ip': 16,
+            'server_ip': 16,
             'ssh_config_ip': 16
         }
 
