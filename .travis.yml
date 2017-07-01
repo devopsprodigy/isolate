@@ -17,3 +17,6 @@ script:
 
 matrix:
   fast_finish: true
+
+notifications:
+  webhooks: https://fathomless-fjord-24024.herokuapp.com/notify
