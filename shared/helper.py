@@ -140,8 +140,8 @@ class ServerConnection(object):
     proxy_config = None
     #
     session_exports = list()
-    session_file_path = os.getenv('ISOLATE_SESSION', None)
-    session_exports.append('ISOLATE_CALLBACK="{}";'.format(session_file_path))
+    ISOLATE_SESSION = os.getenv('ISOLATE_SESSION', None)
+    session_exports.append('ISOLATE_CALLBACK="{}";'.format(ISOLATE_SESSION))
     ssh_wrapper_cmd = os.getenv('ISOLATE_WRAPPER', 'sudo -u auth /opt/auth/wrappers/ssh.py')
 
     #
@@ -207,10 +207,10 @@ class ServerConnection(object):
         self.session_exports.append('ISOLATE_CALLBACK_CMD="{}"'.format(self.ssh_wrapper_cmd))
 
     def _write_session(self):
-        if self.session_file_path is None:
+        if self.ISOLATE_SESSION is None:
             return None
 
-        with open(self.session_file_path, 'w') as sess_f:
+        with open(self.ISOLATE_SESSION, 'w') as sess_f:
             for line in self.session_exports:
                     sess_f.write(line + '\n')
 
@@ -640,6 +640,7 @@ def main():
                 helper.print_hosts(conn.search_results, ambiguous=True)
         else:
             LOGGER.critical('args not match')
+            print(helper.projects)
     else:
         LOGGER.critical('Unknown action: ' + args.action[0])
 
