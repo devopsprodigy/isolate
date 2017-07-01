@@ -112,9 +112,7 @@ class IsolateRedisHosts(object):
         return self.hosts_dump
 
     def get_projects(self):
-        print(json.dumps(self.projects, indent=4))
-
-        return self.projects
+        return list(sorted(set(self.projects)))
 
 
 class ServerConnection(object):
