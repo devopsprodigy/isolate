@@ -22,6 +22,8 @@ logging.basicConfig(stream=sys.stderr, level=logging.INFO, format=LOG_FORMAT,
                     datefmt='%H:%M:%S %d-%m-%Y')
 
 LOGGER = logging.getLogger('helper')
+ZabbixAPI_LOGGER = logging.getLogger('ZabbixAPI')
+ZabbixAPI_LOGGER.setLevel(logging.WARN)
 
 
 def str2bool(s):
@@ -98,9 +100,9 @@ class IsolateRedisHosts(object):
     def __init__(self):
         self.projects = list()
         self.hosts_dump = list()
-        self.redis = Redis(host=os.getenv('ISOLATE_REDIS_IP', '127.0.0.1'),
-                           port=int(os.getenv('ISOLATE_REDIS_PORT', 6379)),
-                           password=os.getenv('ISOLATE_REDIS_PASS', 'te2uth4dohLi8i'),
+        self.redis = Redis(host=os.getenv('ISOLATE_REDIS_HOST'),
+                           port=int(os.getenv('ISOLATE_REDIS_PORT')),
+                           password=os.getenv('ISOLATE_REDIS_PASS'),
                            db=0)
 
     def get_hosts(self):

@@ -1,10 +1,10 @@
 umask 0077;
-USER="${USER:-NO_USER_ENV}"
+USER="${USER:-NO_USER_ENV}";
 ISOLATE_DATA_ROOT="${ISOLATE_DATA_ROOT:-/opt/auth}";
 ISOLATE_SHARED="${ISOLATE_DATA_ROOT}/shared";
 ISOLATE_HELPER="${ISOLATE_SHARED}/helper.py";
 ISOLATE_DEPLOY_LOCK="${ISOLATE_DATA_ROOT}/.deploy";
-ISOLATE_COLORS=true
+ISOLATE_COLORS=true;
 
 export USER;
 export ISOLATE_DATA_ROOT;
@@ -12,14 +12,14 @@ export ISOLATE_SHARED;
 export ISOLATE_HELPER;
 export ISOLATE_COLORS;
 
-export LANG="en_US.UTF-8"
-export LC_COLLATE="en_US.UTF-8"
-export LC_CTYPE="en_US.UTF-8"
-export LC_MESSAGES="en_US.UTF-8"
-export LC_MONETARY="en_US.UTF-8"
-export LC_NUMERIC="en_US.UTF-8"
-export LC_TIME="en_US.UTF-8"
-export LC_ALL="en_US.UTF-8"
+export LANG="en_US.UTF-8";
+export LC_COLLATE="en_US.UTF-8";
+export LC_CTYPE="en_US.UTF-8";
+export LC_MESSAGES="en_US.UTF-8";
+export LC_MONETARY="en_US.UTF-8";
+export LC_NUMERIC="en_US.UTF-8";
+export LC_TIME="en_US.UTF-8";
+export LC_ALL="en_US.UTF-8";
 
 deploy_lock () {
     while [ -f "${ISOLATE_DEPLOY_LOCK}" ]; do
