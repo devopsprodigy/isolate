@@ -136,9 +136,9 @@ class ServerConnection(object):
     proxy_config = None
     #
     session_exports = list()
-    session_file_path = os.getenv('AUTH_SESSION', None)
-    session_exports.append('AUTH_CALLBACK="{}";'.format(session_file_path))
-    ssh_wrapper_cmd = os.getenv('AUTH_WRAPPER', 'sudo -u auth /opt/auth/wrappers/ssh.py')
+    session_file_path = os.getenv('ISOLATE_SESSION', None)
+    session_exports.append('ISOLATE_CALLBACK="{}";'.format(session_file_path))
+    ssh_wrapper_cmd = os.getenv('ISOLATE_WRAPPER', 'sudo -u auth /opt/auth/wrappers/ssh.py')
 
     #
     def __init__(self, helper=None, unknown_args=None):
@@ -200,7 +200,7 @@ class ServerConnection(object):
         if bool(self.unknown_args):
             self.ssh_wrapper_cmd += ' ' + ' '.join(self.unknown_args)
 
-        self.session_exports.append('AUTH_CALLBACK_CMD="{}"'.format(self.ssh_wrapper_cmd))
+        self.session_exports.append('ISOLATE_CALLBACK_CMD="{}"'.format(self.ssh_wrapper_cmd))
 
     def _write_session(self):
         if self.session_file_path is None:
@@ -295,25 +295,25 @@ class AuthHelper(object):
 
     def _init_env_vars(self):
         # Main config options
-        self.AUTH_DATA_ROOT = os.getenv('AUTH_DATA_ROOT', '/opt/auth')
-        self.AUTH_DEBUG = str2bool(os.getenv('AUTH_DEBUG', False))
+        self.ISOLATE_DATA_ROOT = os.getenv('ISOLATE_DATA_ROOT', '/opt/auth')
+        self.ISOLATE_DEBUG = str2bool(os.getenv('ISOLATE_DEBUG', False))
 
         self.USER = os.getenv('USER', 'USER_ENV_NOT_SET')
         self.SUDO_USER = os.getenv('SUDO_USER', 'SUDO_USER_ENV_NOT_SET')
-        self.AUTH_WRAPPER = os.getenv('AUTH_WRAPPER', 'sudo -u auth /mnt/data/auth/wrap/ssh.py')
+        self.ISOLATE_WRAPPER = os.getenv('ISOLATE_WRAPPER', 'sudo -u auth /mnt/data/auth/wrap/ssh.py')
 
         # User interface options
         # search print fields seporator
-        self.AUTH_SPF_SEP = os.getenv('AUTH_SPF_SEP', ' | ')
+        self.ISOLATE_SPF_SEP = os.getenv('ISOLATE_SPF_SEP', ' | ')
 
         # Go to server immediately if only one server in group
-        self.AUTH_BLINDE = str2bool(os.getenv('AUTH_BLINDE', False))
+        self.ISOLATE_BLINDE = str2bool(os.getenv('ISOLATE_BLINDE', False))
 
         # Colorize interface
-        self.AUTH_COLORS = str2bool(os.getenv('AUTH_COLORS', False))
+        self.ISOLATE_COLORS = str2bool(os.getenv('ISOLATE_COLORS', False))
 
         # Search Print Line: fields names and order, not template
-        self.AUTH_SPF = os.getenv('AUTH_SPF', 'server_id server_ip server_name').strip().split(' ')
+        self.ISOLATE_SPF = os.getenv('ISOLATE_SPF', 'server_id server_ip server_name').strip().split(' ')
 
     def _load_data(self):
         self.hosts_dump = []
@@ -419,7 +419,7 @@ class AuthHelper(object):
             os_version='\033[38;5;220m'
         )
 
-        if not self.AUTH_COLORS or not colors.get(color, False):
+        if not self.ISOLATE_COLORS or not colors.get(color, False):
             return text
         else:
             return '{0}{1}{2}'.format(colors.get(color), text, colors.get('reset'))
@@ -435,12 +435,12 @@ class AuthHelper(object):
         }
 
         host = copy(host)
-        for key in self.AUTH_SPF:
+        for key in self.ISOLATE_SPF:
             if key not in host.keys():
                 continue
             if host[key] in [None, True, False]:
                 continue
-            if len(str(host[key])) > 0 and key in self.AUTH_SPF:
+            if len(str(host[key])) > 0 and key in self.ISOLATE_SPF:
                 if key in ljust_size:
                     host[key] = str(host[key]).ljust(ljust_size[key], ' ')
                 if host[key][-1] != ' ':
@@ -453,11 +453,11 @@ class AuthHelper(object):
         host_keys = host.keys()
 
         if ambiguous:
-            self.AUTH_SPF = ['server_id', 'match_info', 'exact_match', 'server_id', 'project_name',
+            self.ISOLATE_SPF = ['server_id', 'match_info', 'exact_match', 'server_id', 'project_name',
                              'server_ip', 'server_name']
 
         # matching debug field
-        if 'match_info' in self.AUTH_SPF:
+        if 'match_info' in self.ISOLATE_SPF:
             match_info = list()
             if 'match_by' in host_keys:
                 match_info.append('by: {}'.format(host['match_by']))
@@ -506,14 +506,14 @@ class AuthHelper(object):
             # Concat strings
             host_line = []
 
-            for field in self.AUTH_SPF:
+            for field in self.ISOLATE_SPF:
                 if field in host.keys():
                     host_line.append(host[field])
 
             if ambiguous or not title:
-                line = '  ' + self.AUTH_SPF_SEP.join(host_line)
+                line = '  ' + self.ISOLATE_SPF_SEP.join(host_line)
             else:
-                line = self.AUTH_SPF_SEP.join(host_line)
+                line = self.ISOLATE_SPF_SEP.join(host_line)
 
             self.print_p(line)
             counter += 1
@@ -575,7 +575,7 @@ def main():
             conn.project = args.sargs[0]
             conn.search_results = helper.search(args.sargs[0], fields=['project_name'], exact_match=True)
 
-            if len(conn.search_results) == 1 and helper.AUTH_BLINDE:
+            if len(conn.search_results) == 1 and helper.ISOLATE_BLINDE:
                 conn.server_id = conn.search_results[0]['server_id']
                 conn.start()
             else:
