@@ -1,5 +1,7 @@
 # isolate
 
+[![Build Status](https://travis-ci.org/itsumma/isolate.svg?branch=master)](https://travis-ci.org/itsumma/isolate)
+
 ![Image](main.png)
 
 bastion host setup scripts.
