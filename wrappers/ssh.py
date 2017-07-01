@@ -177,12 +177,13 @@ def init_log_file(host):
     current_user_log_dir = '{0}/{1}'.format(logs_base_path, local_sudo_user)
     mkdir(current_user_log_dir)
 
-    # example: /tmp/root/root_127.0.0.1_22_common_1485110002.log
-    current_log_path = '{0}/{1}_{2}_{3}_{4}.log'.format(current_user_log_dir,
-                                                        local_sudo_user,
-                                                        host['hostname'],
-                                                        host['port'],
-                                                        local_timestamp)
+    # example: /tmp/root/root_127.0.0.1_22_common_1485110002_<uuid>.log
+    current_log_path = '{0}/{1}_{2}_{3}_{4}_{5}.log'.format(current_user_log_dir,
+                                                            local_sudo_user,
+                                                            host['hostname'],
+                                                            host['port'],
+                                                            local_timestamp,
+                                                            host['uuid'][:12])
 
     host['log_path'] = current_log_path
     loger_pipe_cmd = 'tee >( awk -f {0}/timecode.awk >> {1} );'.format(working_dir, current_log_path)
