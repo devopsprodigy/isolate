@@ -1,6 +1,7 @@
 # isolate
 
 [![Build Status](https://travis-ci.org/itsumma/isolate.svg?branch=master)](https://travis-ci.org/itsumma/isolate)
+[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/isolate_bastion/Lobby)
 
 ![Image](main.png)
 
@@ -123,7 +124,7 @@ gen-oath-safe username hotp
 append to `/etc/bashrc`
 ```
 ISOLATE_BACKEND=redis; # or zabbix
-export $ISOLATE_BACKEND;
+export ISOLATE_BACKEND;
 ```
 
 #### Redis
@@ -132,9 +133,9 @@ export $ISOLATE_BACKEND;
 ISOLATE_REDIS_HOST="127.0.0.1";
 ISOLATE_REDIS_PORT="6379";
 ISOLATE_REDIS_PASS="te2uth4dohLi8i"; # /etc/redis.conf
-export $ISOLATE_REDIS_HOST;
-export $ISOLATE_REDIS_PORT;
-export $ISOLATE_REDIS_PASS;
+export ISOLATE_REDIS_HOST;
+export ISOLATE_REDIS_PORT;
+export ISOLATE_REDIS_PASS;
 ```
 
 #### Zabbix
@@ -143,9 +144,9 @@ export $ISOLATE_REDIS_PASS;
 ISOLATE_ZABBIX_URL="http://zabbix.95.213.200.160.xip.name"
 ISOLATE_ZABBIX_USER="isolate"
 ISOLATE_ZABBIX_PASS="aZ1eil2ooz4Iefah"
-export $ISOLATE_ZABBIX_URL;
-export $ISOLATE_ZABBIX_USER;
-export $ISOLATE_ZABBIX_PASS;
+export ISOLATE_ZABBIX_URL;
+export ISOLATE_ZABBIX_USER;
+export ISOLATE_ZABBIX_PASS;
 ```
 
 
@@ -186,4 +187,5 @@ auth-add-host --project drugstore --server-name aws-eu-prod --ip 4.1.1.1 --port 
 * NewRelic support
 * CI
 * GeoIP ASN lookup
+* SELinux Support
 * [Ideas?](mailto:ilya.yakovlev@me.com)
