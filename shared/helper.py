@@ -13,6 +13,7 @@ import socket
 import re
 from redis import Redis
 from operator import itemgetter
+from pyzabbix import ZabbixAPI
 
 __version__ = '0.100.500'
 
@@ -60,6 +61,58 @@ def init_args():
         logging.basicConfig(stream=sys.stderr, level=logging.WARN, format=LOG_FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 
     return args, unknown_args
+
+
+class IsolateZabbixHosts(object):
+    def __init__(self):
+        self.hosts_dump = list()
+        self.hosts_dict = dict()
+        self.projects = list()
+        self.zapi = ZabbixAPI("http://95.213.194.119/zabbix")
+        self.zapi.login("isolate", "xaighoF2aemaehee")
+
+    def get_hosts(self):
+        for h in self.zapi.hostinterface.get(output="extend", selectHosts=["host"], filter={"main": 1, "type": 1}):
+            host = dict(
+                server_name=h['hosts'][0]['host'],
+                server_id=h['hosts'][0]['hostid'],
+                server_ip=h['ip']
+            )
+            self.hosts_dict[str(host['server_id'])] = host
+
+        for g in self.zapi.hostgroup.get(output="extend", selectHosts=["host"], filter={"main": 1, "type": 1}):
+            project_name = g['name']
+            self.projects.append(project_name)
+            for h in g['hosts']:
+                server_id = h['hostid']
+                host = self.hosts_dict[server_id]
+                host['project_name'] = project_name
+                self.hosts_dump.append(self.hosts_dict[server_id])
+        return self.hosts_dump
+
+    def get_projects(self):
+        return list(sorted(set(self.projects)))
+
+
+class IsolateRedisHosts(object):
+    def __init__(self):
+        self.projects = list()
+        self.hosts_dump = list()
+        self.redis = Redis(host=os.getenv('ISOLATE_REDIS_IP', '127.0.0.1'),
+                           port=int(os.getenv('ISOLATE_REDIS_PORT', 6379)),
+                           password=os.getenv('ISOLATE_REDIS_PASS', 'te2uth4dohLi8i'),
+                           db=0)
+
+    def get_hosts(self):
+        for server_key in self.redis.keys('server_*'):
+            server_data = self.redis.get(server_key)
+            server_data = json.loads(server_data)
+            self.projects.append(server_data['project_name'])
+            self.hosts_dump.append(server_data)
+        return self.hosts_dump
+
+    def get_projects(self):
+        return list(sorted(set(self.projects)))
 
 
 class ServerConnection(object):
@@ -178,13 +231,10 @@ class AuthHelper(object):
         self.uuid = str(uuid4())
         self.projects = None
         self.time_start = time()
+        self.backend = os.getenv('ISOLATE_BACKEND', 'redis')
         self.args = args
         self.unknown_args = unknown_args
         self._init_env_vars()
-        self.redis = Redis(host=os.getenv('AUTH_REDIS_IP', '127.0.0.1'),
-                           port=int(os.getenv('AUTH_REDIS_PORT', 6379)),
-                           password=os.getenv('AUTH_REDIS_PASS', 'te2uth4dohLi8i'),
-                           db=0)
         self._load_data()
         LOGGER.debug('AuthHelper init done')
 
@@ -268,16 +318,16 @@ class AuthHelper(object):
     def _load_data(self):
         self.hosts_dump = []
         self.projects = []
+        if self.backend == 'redis':
+            db = IsolateRedisHosts()
+        elif self.backend == 'zabbix':
+            db = IsolateZabbixHosts()
+        else:
+            LOGGER.critical('Incorrect backend')
+            sys.exit(1)
 
-        for server_key in self.redis.keys('server_*'):
-            server_data = self.redis.get(server_key)
-            server_data = json.loads(server_data)
-
-            self.projects.append(server_data['project_name'])
-            self.hosts_dump.append(server_data)
-
-        self.projects = list(sorted(set(self.projects)))
-        self.hosts_dump = sorted(self.hosts_dump, key=itemgetter('project_name'))
+        self.projects = list(sorted(set(db.get_hosts())))
+        self.hosts_dump = sorted(db.get_projects(), key=itemgetter('project_name'))
 
         LOGGER.debug('_load_data')
         LOGGER.debug(json.dumps(self.hosts_dump, indent=4))
@@ -319,15 +369,15 @@ class AuthHelper(object):
     def search(self, query, **kwargs):
         time_search_start = time()
         source = kwargs.pop('source', self.hosts_dump)
-        project = kwargs.pop('project_name', False)
+        project_name = kwargs.pop('project_name', False)
         kwargs.update(query_src=str(query), query_lower=query.lower())
 
         result = list()
 
         for item in source:
             # project filter
-            if project:
-                if item['project_name'] != project:
+            if project_name:
+                if item['project_name'] != project_name:
                     continue
 
             item_query = copy(kwargs)
@@ -379,7 +429,7 @@ class AuthHelper(object):
         ljust_size = {
             'project_name': 8,
             'server_name': 12,
-            'server_id': 7,
+            'server_id': 6,
             'last_ip': 16,
             'ssh_config_ip': 16
         }
