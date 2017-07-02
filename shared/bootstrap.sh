@@ -43,6 +43,7 @@ auth_callback () {
     fi
 
     ISOLATE_SESSION=$(mktemp "${SESS_DIR}/ssh_XXXXXXXXX");
+    export ISOLATE_SESSION;
     trap auth_callback_cleanup SIGHUP SIGINT SIGTERM EXIT;
 
     "${@}";

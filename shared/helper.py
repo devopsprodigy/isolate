@@ -18,7 +18,7 @@ from pyzabbix import ZabbixAPI
 __version__ = '0.100.500'
 
 LOG_FORMAT = '[%(levelname)s] %(name)s %(message)s'
-logging.basicConfig(stream=sys.stderr, level=logging.INFO, format=LOG_FORMAT,
+logging.basicConfig(stream=sys.stderr, level=logging.WARN, format=LOG_FORMAT,
                     datefmt='%H:%M:%S %d-%m-%Y')
 
 LOGGER = logging.getLogger('helper')
@@ -125,7 +125,7 @@ class ServerConnection(object):
     #
     arg_type = None
     search_results = []
-    project = None
+    project_name = None
     server_name = None
     server_id = None
     #
@@ -164,6 +164,7 @@ class ServerConnection(object):
     def _get_host_config(self):
         if len(self.search_results) != 1:
             return
+
         host_config = self.search_results[0]
 
         if 'server_ip' in host_config.keys():
@@ -568,7 +569,7 @@ def main():
             conn.search_results = helper.search(args.sargs[0], fields=['server_id'], exact_match=True)
 
             if len(conn.search_results) == 1:
-                conn.project = conn.search_results[0]['project_name']
+                conn.project_name = conn.search_results[0]['project_name']
                 conn.server_id = args.sargs[0]
                 conn.start()
             else:
@@ -576,7 +577,7 @@ def main():
 
         elif len(args.sargs) == 1 and args.sargs[0] in helper.projects:
             conn.arg_type = 'project_only'
-            conn.project = args.sargs[0]
+            conn.project_name = args.sargs[0]
             conn.search_results = helper.search(args.sargs[0], fields=['project_name'], exact_match=True)
 
             if len(conn.search_results) == 1 and helper.ISOLATE_BLINDE:
@@ -603,8 +604,8 @@ def main():
         # if first arg is project and second ... shit
         elif len(args.sargs) == 2 and args.sargs[0] in helper.projects:
             conn.arg_type = 'project_with_some_shit'
-            conn.project = args.sargs[0]
-            conn.search_results = helper.search(args.sargs[1], project_name=conn.project,
+            conn.project_name = args.sargs[0]
+            conn.search_results = helper.search(args.sargs[1], project_name=conn.project_name,
                                                 fields=['server_name', 'server_id', 'server_ip'],
                                                 exact_match=True)
 
@@ -640,7 +641,6 @@ def main():
                 helper.print_hosts(conn.search_results, ambiguous=True)
         else:
             LOGGER.critical('args not match')
-            print(helper.projects)
     else:
         LOGGER.critical('Unknown action: ' + args.action[0])
 
