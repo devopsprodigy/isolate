@@ -13,14 +13,19 @@ import socket
 import re
 from redis import Redis
 from operator import itemgetter
+from pyzabbix import ZabbixAPI
 
 __version__ = '0.100.500'
 
 LOG_FORMAT = '[%(levelname)s] %(name)s %(message)s'
-logging.basicConfig(stream=sys.stderr, level=logging.INFO, format=LOG_FORMAT,
+logging.basicConfig(stream=sys.stderr, level=logging.WARN, format=LOG_FORMAT,
                     datefmt='%H:%M:%S %d-%m-%Y')
 
 LOGGER = logging.getLogger('helper')
+pyzabbix_LOGGER = logging.getLogger('pyzabbix')
+pyzabbix_LOGGER.setLevel(logging.WARN)
+pyzabbix_requests_LOGGER = logging.getLogger('requests.packages.urllib3.connectionpool')
+pyzabbix_requests_LOGGER.setLevel(logging.WARN)
 
 
 def str2bool(s):
@@ -62,13 +67,65 @@ def init_args():
     return args, unknown_args
 
 
+class IsolateZabbixHosts(object):
+    def __init__(self):
+        self.hosts_dump = list()
+        self.hosts_dict = dict()
+        self.projects = list()
+        self.zapi = ZabbixAPI(os.getenv('ISOLATE_ZABBIX_URL'))
+        self.zapi.login(os.getenv('ISOLATE_ZABBIX_USER'), os.getenv('ISOLATE_ZABBIX_PASS'))
+
+    def get_hosts(self):
+        for h in self.zapi.hostinterface.get(output="extend", selectHosts=["host"], filter={"main": 1, "type": 1}):
+            host = dict(
+                server_name=h['hosts'][0]['host'],
+                server_id=h['hosts'][0]['hostid'],
+                server_ip=h['ip']
+            )
+            self.hosts_dict[str(host['server_id'])] = host
+
+        for g in self.zapi.hostgroup.get(output="extend", selectHosts=["host"], filter={"main": 1, "type": 1}):
+            project_name = g['name']
+            self.projects.append(project_name)
+            for h in g['hosts']:
+                server_id = h['hostid']
+                host = self.hosts_dict[server_id]
+                host['project_name'] = project_name
+                self.hosts_dump.append(self.hosts_dict[server_id])
+        return self.hosts_dump
+
+    def get_projects(self):
+        return list(sorted(set(self.projects)))
+
+
+class IsolateRedisHosts(object):
+    def __init__(self):
+        self.projects = list()
+        self.hosts_dump = list()
+        self.redis = Redis(host=os.getenv('ISOLATE_REDIS_HOST'),
+                           port=int(os.getenv('ISOLATE_REDIS_PORT')),
+                           password=os.getenv('ISOLATE_REDIS_PASS'),
+                           db=0)
+
+    def get_hosts(self):
+        for server_key in self.redis.keys('server_*'):
+            server_data = self.redis.get(server_key)
+            server_data = json.loads(server_data)
+            self.projects.append(server_data['project_name'])
+            self.hosts_dump.append(server_data)
+        return self.hosts_dump
+
+    def get_projects(self):
+        return list(sorted(set(self.projects)))
+
+
 class ServerConnection(object):
     #
     helper = None
     #
     arg_type = None
     search_results = []
-    project = None
+    project_name = None
     server_name = None
     server_id = None
     #
@@ -83,9 +140,9 @@ class ServerConnection(object):
     proxy_config = None
     #
     session_exports = list()
-    session_file_path = os.getenv('AUTH_SESSION', None)
-    session_exports.append('AUTH_CALLBACK="{}";'.format(session_file_path))
-    ssh_wrapper_cmd = os.getenv('AUTH_WRAPPER', 'sudo -u auth /opt/auth/wrappers/ssh.py')
+    ISOLATE_SESSION = os.getenv('ISOLATE_SESSION', None)
+    session_exports.append('ISOLATE_CALLBACK="{}";'.format(ISOLATE_SESSION))
+    ssh_wrapper_cmd = os.getenv('ISOLATE_WRAPPER', 'sudo -u auth /opt/auth/wrappers/ssh.py')
 
     #
     def __init__(self, helper=None, unknown_args=None):
@@ -107,6 +164,7 @@ class ServerConnection(object):
     def _get_host_config(self):
         if len(self.search_results) != 1:
             return
+
         host_config = self.search_results[0]
 
         if 'server_ip' in host_config.keys():
@@ -147,13 +205,13 @@ class ServerConnection(object):
         if bool(self.unknown_args):
             self.ssh_wrapper_cmd += ' ' + ' '.join(self.unknown_args)
 
-        self.session_exports.append('AUTH_CALLBACK_CMD="{}"'.format(self.ssh_wrapper_cmd))
+        self.session_exports.append('ISOLATE_CALLBACK_CMD="{}"'.format(self.ssh_wrapper_cmd))
 
     def _write_session(self):
-        if self.session_file_path is None:
+        if self.ISOLATE_SESSION is None:
             return None
 
-        with open(self.session_file_path, 'w') as sess_f:
+        with open(self.ISOLATE_SESSION, 'w') as sess_f:
             for line in self.session_exports:
                     sess_f.write(line + '\n')
 
@@ -181,10 +239,6 @@ class AuthHelper(object):
         self.args = args
         self.unknown_args = unknown_args
         self._init_env_vars()
-        self.redis = Redis(host=os.getenv('AUTH_REDIS_IP', '127.0.0.1'),
-                           port=int(os.getenv('AUTH_REDIS_PORT', 6379)),
-                           password=os.getenv('AUTH_REDIS_PASS', 'te2uth4dohLi8i'),
-                           db=0)
         self._load_data()
         LOGGER.debug('AuthHelper init done')
 
@@ -245,39 +299,40 @@ class AuthHelper(object):
 
     def _init_env_vars(self):
         # Main config options
-        self.AUTH_DATA_ROOT = os.getenv('AUTH_DATA_ROOT', '/opt/auth')
-        self.AUTH_DEBUG = str2bool(os.getenv('AUTH_DEBUG', False))
+        self.ISOLATE_BACKEND = os.getenv('ISOLATE_BACKEND', 'redis')
+        self.ISOLATE_DATA_ROOT = os.getenv('ISOLATE_DATA_ROOT', '/opt/auth')
+        self.ISOLATE_DEBUG = str2bool(os.getenv('ISOLATE_DEBUG', False))
 
         self.USER = os.getenv('USER', 'USER_ENV_NOT_SET')
         self.SUDO_USER = os.getenv('SUDO_USER', 'SUDO_USER_ENV_NOT_SET')
-        self.AUTH_WRAPPER = os.getenv('AUTH_WRAPPER', 'sudo -u auth /mnt/data/auth/wrap/ssh.py')
+        self.ISOLATE_WRAPPER = os.getenv('ISOLATE_WRAPPER', 'sudo -u auth /mnt/data/auth/wrap/ssh.py')
 
         # User interface options
         # search print fields seporator
-        self.AUTH_SPF_SEP = os.getenv('AUTH_SPF_SEP', ' | ')
+        self.ISOLATE_SPF_SEP = os.getenv('ISOLATE_SPF_SEP', ' | ')
 
         # Go to server immediately if only one server in group
-        self.AUTH_BLINDE = str2bool(os.getenv('AUTH_BLINDE', False))
+        self.ISOLATE_BLINDE = str2bool(os.getenv('ISOLATE_BLINDE', False))
 
         # Colorize interface
-        self.AUTH_COLORS = str2bool(os.getenv('AUTH_COLORS', False))
+        self.ISOLATE_COLORS = str2bool(os.getenv('ISOLATE_COLORS', False))
 
         # Search Print Line: fields names and order, not template
-        self.AUTH_SPF = os.getenv('AUTH_SPF', 'server_id server_ip server_name').strip().split(' ')
+        self.ISOLATE_SPF = os.getenv('ISOLATE_SPF', 'server_id server_ip server_name').strip().split(' ')
 
     def _load_data(self):
         self.hosts_dump = []
         self.projects = []
+        if self.ISOLATE_BACKEND == 'redis':
+            db = IsolateRedisHosts()
+        elif self.ISOLATE_BACKEND == 'zabbix':
+            db = IsolateZabbixHosts()
+        else:
+            LOGGER.critical('Incorrect backend')
+            sys.exit(1)
 
-        for server_key in self.redis.keys('server_*'):
-            server_data = self.redis.get(server_key)
-            server_data = json.loads(server_data)
-
-            self.projects.append(server_data['project_name'])
-            self.hosts_dump.append(server_data)
-
-        self.projects = list(sorted(set(self.projects)))
-        self.hosts_dump = sorted(self.hosts_dump, key=itemgetter('project_name'))
+        self.hosts_dump = sorted(db.get_hosts(), key=itemgetter('project_name'))
+        self.projects = list(sorted(set(db.get_projects())))
 
         LOGGER.debug('_load_data')
         LOGGER.debug(json.dumps(self.hosts_dump, indent=4))
@@ -319,15 +374,15 @@ class AuthHelper(object):
     def search(self, query, **kwargs):
         time_search_start = time()
         source = kwargs.pop('source', self.hosts_dump)
-        project = kwargs.pop('project_name', False)
+        project_name = kwargs.pop('project_name', False)
         kwargs.update(query_src=str(query), query_lower=query.lower())
 
         result = list()
 
         for item in source:
             # project filter
-            if project:
-                if item['project_name'] != project:
+            if project_name:
+                if item['project_name'] != project_name:
                     continue
 
             item_query = copy(kwargs)
@@ -369,7 +424,7 @@ class AuthHelper(object):
             os_version='\033[38;5;220m'
         )
 
-        if not self.AUTH_COLORS or not colors.get(color, False):
+        if not self.ISOLATE_COLORS or not colors.get(color, False):
             return text
         else:
             return '{0}{1}{2}'.format(colors.get(color), text, colors.get('reset'))
@@ -379,18 +434,18 @@ class AuthHelper(object):
         ljust_size = {
             'project_name': 8,
             'server_name': 12,
-            'server_id': 7,
-            'last_ip': 16,
+            'server_id': 6,
+            'server_ip': 16,
             'ssh_config_ip': 16
         }
 
         host = copy(host)
-        for key in self.AUTH_SPF:
+        for key in self.ISOLATE_SPF:
             if key not in host.keys():
                 continue
             if host[key] in [None, True, False]:
                 continue
-            if len(str(host[key])) > 0 and key in self.AUTH_SPF:
+            if len(str(host[key])) > 0 and key in self.ISOLATE_SPF:
                 if key in ljust_size:
                     host[key] = str(host[key]).ljust(ljust_size[key], ' ')
                 if host[key][-1] != ' ':
@@ -403,11 +458,11 @@ class AuthHelper(object):
         host_keys = host.keys()
 
         if ambiguous:
-            self.AUTH_SPF = ['server_id', 'match_info', 'exact_match', 'server_id', 'project_name',
+            self.ISOLATE_SPF = ['server_id', 'match_info', 'exact_match', 'server_id', 'project_name',
                              'server_ip', 'server_name']
 
         # matching debug field
-        if 'match_info' in self.AUTH_SPF:
+        if 'match_info' in self.ISOLATE_SPF:
             match_info = list()
             if 'match_by' in host_keys:
                 match_info.append('by: {}'.format(host['match_by']))
@@ -456,14 +511,14 @@ class AuthHelper(object):
             # Concat strings
             host_line = []
 
-            for field in self.AUTH_SPF:
+            for field in self.ISOLATE_SPF:
                 if field in host.keys():
                     host_line.append(host[field])
 
             if ambiguous or not title:
-                line = '  ' + self.AUTH_SPF_SEP.join(host_line)
+                line = '  ' + self.ISOLATE_SPF_SEP.join(host_line)
             else:
-                line = self.AUTH_SPF_SEP.join(host_line)
+                line = self.ISOLATE_SPF_SEP.join(host_line)
 
             self.print_p(line)
             counter += 1
@@ -514,7 +569,7 @@ def main():
             conn.search_results = helper.search(args.sargs[0], fields=['server_id'], exact_match=True)
 
             if len(conn.search_results) == 1:
-                conn.project = conn.search_results[0]['project_name']
+                conn.project_name = conn.search_results[0]['project_name']
                 conn.server_id = args.sargs[0]
                 conn.start()
             else:
@@ -522,10 +577,10 @@ def main():
 
         elif len(args.sargs) == 1 and args.sargs[0] in helper.projects:
             conn.arg_type = 'project_only'
-            conn.project = args.sargs[0]
+            conn.project_name = args.sargs[0]
             conn.search_results = helper.search(args.sargs[0], fields=['project_name'], exact_match=True)
 
-            if len(conn.search_results) == 1 and helper.AUTH_BLINDE:
+            if len(conn.search_results) == 1 and helper.ISOLATE_BLINDE:
                 conn.server_id = conn.search_results[0]['server_id']
                 conn.start()
             else:
@@ -549,8 +604,8 @@ def main():
         # if first arg is project and second ... shit
         elif len(args.sargs) == 2 and args.sargs[0] in helper.projects:
             conn.arg_type = 'project_with_some_shit'
-            conn.project = args.sargs[0]
-            conn.search_results = helper.search(args.sargs[1], project_name=conn.project,
+            conn.project_name = args.sargs[0]
+            conn.search_results = helper.search(args.sargs[1], project_name=conn.project_name,
                                                 fields=['server_name', 'server_id', 'server_ip'],
                                                 exact_match=True)
 
