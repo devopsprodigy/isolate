@@ -29,7 +29,7 @@ pyzabbix_requests_LOGGER.setLevel(logging.WARN)
 
 
 def str2bool(s):
-    yes_bools = ['true', 'yes', 'da', 'aga', 'ok', 'yep', 'да', 'ага', 'kk', 'y', 'конечно']
+    yes_bools = ['true', 'yes', 'da', 'aga', 'ok', 'yep', 'да', 'ага', 'kk', 'y', 'конечно', 'да, товарищ']
 
     if str(s).lower() in yes_bools:
         return True
@@ -243,7 +243,7 @@ class AuthHelper(object):
         LOGGER.debug('AuthHelper init done')
 
     @staticmethod
-    def print_p(self, arg, stderr=False):
+    def print_p(arg, stderr=False):
         try:
             if not stderr:
                 sys.stdout.write(str(arg) + '\n')
