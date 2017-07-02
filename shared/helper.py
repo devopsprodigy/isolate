@@ -103,9 +103,9 @@ class IsolateRedisHosts(object):
         self.projects = list()
         self.hosts_dump = list()
         self.redis = Redis(host=os.getenv('ISOLATE_REDIS_HOST'),
-                           port=int(os.getenv('ISOLATE_REDIS_PORT')),
+                           port=int(os.getenv('ISOLATE_REDIS_PORT', 6379)),
                            password=os.getenv('ISOLATE_REDIS_PASS'),
-                           db=0)
+                           db=int(os.getenv('ISOLATE_REDIS_DB', 0)))
 
     def get_hosts(self):
         for server_key in self.redis.keys('server_*'):
@@ -242,6 +242,7 @@ class AuthHelper(object):
         self._load_data()
         LOGGER.debug('AuthHelper init done')
 
+    @staticmethod
     def print_p(self, arg, stderr=False):
         try:
             if not stderr:

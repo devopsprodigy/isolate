@@ -72,10 +72,10 @@ def main():
     args = arg_parser.parse_args()
     params = args.__dict__
 
-    redis = Redis(host=os.getenv('AUTH_REDIS_IP', '127.0.0.1'),
-                  port=int(os.getenv('AUTH_REDIS_PORT', 6379)),
-                  password=os.getenv('AUTH_REDIS_PASS', 'te2uth4dohLi8i'),
-                  db=0)
+    redis = Redis(host=os.getenv('ISOLATE_REDIS_HOST'),
+                  port=int(os.getenv('ISOLATE_REDIS_PORT', 6379)),
+                  password=os.getenv('ISOLATE_REDIS_PASS'),
+                  db=int(os.getenv('ISOLATE_REDIS_DB', 0)))
 
     # Management info
     action = params['action'][0]
