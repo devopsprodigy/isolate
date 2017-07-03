@@ -145,7 +145,7 @@ def main():
         params['server_id'] = redis.incr('offset_server_id')
         redis_key = 'server_' + str(params['server_id'])
         redis.set(redis_key, json.dumps(params))
-        print('Database updated')
+        print('Database updated: {0}'.format(params['server_id']))
 
     elif action == 'del-host':
 
