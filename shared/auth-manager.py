@@ -58,14 +58,17 @@ def main():
                                          description='Auth shell helper')
 
     arg_parser.add_argument('action', type=str, nargs=1)
-    arg_parser.add_argument('--project', type=str, nargs=1, default=[os.getenv('ISOLATE_DEFAULT_PROJECT', 'default')])
+    arg_parser.add_argument('--project', type=str, nargs=1,
+                            default=[os.getenv('ISOLATE_DEFAULT_PROJECT', 'default')])
     arg_parser.add_argument('--server-name', type=str, nargs=1)
     arg_parser.add_argument('--ip', type=str, nargs=1)
     arg_parser.add_argument('--port', type=int, nargs=1, default=[None])
     arg_parser.add_argument('--user', type=str, nargs=1, default=[None])
     arg_parser.add_argument('--nosudo', action='store_true')
-    arg_parser.add_argument('--proxy-id', type=int, nargs=1, default=[None], help="server_id of proxy")
-    arg_parser.add_argument('--server-id', type=int, nargs=1, default=[None], help="server_id (for del-host)")
+    arg_parser.add_argument('--proxy-id', type=int, nargs=1,
+                            default=[None], help="server_id of proxy")
+    arg_parser.add_argument('--server-id', type=int, nargs=1, default=[None],
+                            help="server_id (for del-host)")
 
     arg_parser.add_argument('--debug', action='store_true')
 

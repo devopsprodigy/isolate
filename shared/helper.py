@@ -339,7 +339,8 @@ class AuthHelper(object):
         LOGGER.debug(json.dumps(self.hosts_dump, indent=4))
         LOGGER.debug(json.dumps(self.projects, indent=4))
 
-    def _search_in_item(self, **kwargs):
+    @staticmethod
+    def _search_in_item(**kwargs):
         item = kwargs.get('item')
         item_keys = item.keys()
         # query_src = kwargs.get('query_src')
