@@ -58,7 +58,7 @@ def main():
                                          description='Auth shell helper')
 
     arg_parser.add_argument('action', type=str, nargs=1)
-    arg_parser.add_argument('--project', type=str, nargs=1)
+    arg_parser.add_argument('--project', type=str, nargs=1, default=[os.getenv('ISOLATE_DEFAULT_PROJECT', 'default')])
     arg_parser.add_argument('--server-name', type=str, nargs=1)
     arg_parser.add_argument('--ip', type=str, nargs=1)
     arg_parser.add_argument('--port', type=int, nargs=1, default=[None])
