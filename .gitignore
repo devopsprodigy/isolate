@@ -1,4 +1,5 @@
 !.gitignore
+ansible/develop-hosts.ini
 keys/*
 logs/*
 *~
@@ -9,4 +10,3 @@ __pycache__/
 .coverage
 **/.coverage
 .deploy
-shared/support-user-setup.sh

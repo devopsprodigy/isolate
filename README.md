@@ -176,6 +176,20 @@ auth-add-host --project powerrangers --server-name aws-eu-prod --ip 3.1.1.1
 auth-add-host --project powerrangers --server-name aws-eu-reserve --ip 3.1.1.2
 
 auth-add-host --project drugstore --server-name aws-eu-prod --ip 4.1.1.1 --port 25 --user dealer --nosudo
+
+# Host with SSH proxy
+
+## add proxy
+auth-add-host --project bigcorp --server-name au-prod-bastion --ip 45.45.45.45 --port 2232
+Database updated: 10001
+
+# and use this id (10001) as proxy to other hosts
+
+## add hosts in network
+auth-add-host --project bigcorp --proxy-id 10001 --server-name au-prod-web1 --ip 192.168.1.1
+auth-add-host --project bigcorp --proxy-id 10001 --server-name au-prod-web2 --ip 192.168.1.2
+auth-add-host --project bigcorp --proxy-id 10001 --server-name au-prod-web3 --ip 192.168.1.3
+
 ```
 
 

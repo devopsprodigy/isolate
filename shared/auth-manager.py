@@ -124,7 +124,12 @@ def main():
                 sys.exit(1)
 
         params['server_nosudo'] = params['nosudo']
+
         params['proxy_id'] = params['proxy_id'][0]
+        if params['proxy_id'] is not None:
+            if redis.get('server_' + str(params['proxy_id'])) is None:
+                LOGGER.critical('proxy with id {} not found!'.format(params['proxy_id']))
+                sys.exit(1)
 
         # Meta
         params['updated_by'] = USER
@@ -149,9 +154,9 @@ def main():
 
     elif action == 'del-host':
 
-        key = 'server_{0}'.format(params['server_id'][0])
-        redis.delete(key)
-        print(key + ' deleted')
+        redis_key = 'server_{0}'.format(params['server_id'][0])
+        redis.delete(redis_key)
+        print(redis_key + ' deleted')
 
 if __name__ == '__main__':
     main()

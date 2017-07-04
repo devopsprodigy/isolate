@@ -548,7 +548,7 @@ def main():
         LOGGER.debug(unknown_args)
 
         if len(args.sargs) == 1 and args.sargs[0] in helper.projects:
-            search_results = helper.search(args.sargs[0], fields=['project'], exact_match=True)
+            search_results = helper.search(args.sargs[0], fields=['project_name'], exact_match=True)
         elif len(args.sargs) == 2 and args.sargs[0] in helper.projects:
             search_results = helper.search(args.sargs[1], project=args.sargs[0])
         else:
