@@ -526,7 +526,7 @@ class AuthHelper(object):
         # Minimum field size (add spaces)
         ljust_size = {
             'project_name': 8,
-            'server_name': 12,
+            'server_name': 24,
             'server_id': 6,
             'server_ip': 16,
             'ssh_config_ip': 16
@@ -650,7 +650,7 @@ def main():
         if len(args.sargs) == 1 and args.sargs[0] in helper.projects:
             search_results = helper.search(args.sargs[0], fields=['project_name'], exact_match=True)
         elif len(args.sargs) == 2 and args.sargs[0] in helper.projects:
-            search_results = helper.search(args.sargs[1], project=args.sargs[0])
+            search_results = helper.search(args.sargs[1], project_name=args.sargs[0])
         else:
             search_results = helper.search(' '.join(args.sargs))
 
