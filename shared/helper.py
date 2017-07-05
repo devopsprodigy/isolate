@@ -563,7 +563,8 @@ class AuthHelper(object):
                 match_info.append('exact: {}'.format(host['exact_match']))
 
             host['match_info'] = self.colorize(', '.join(match_info), color='okgreen')
-            host['asn'] = self.geoip.name_by_addr(host['server_ip'])
+
+        host['geoip_asn'] = host['geoip_asn'][:32]
 
         return host
 
