@@ -14,8 +14,8 @@ import re
 from redis import Redis
 from operator import itemgetter
 from pyzabbix import ZabbixAPI
+# from AuthCore import __version__
 
-__version__ = '0.100.500'
 
 LOG_FORMAT = '[%(levelname)s] %(name)s %(message)s'
 logging.basicConfig(stream=sys.stderr, level=logging.WARN, format=LOG_FORMAT,

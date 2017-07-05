@@ -54,3 +54,4 @@ common_utils_yum:
   - zlib-devel
   - zlib
   - pwgen
+  - zsh

@@ -1,3 +1,9 @@
 ---
+- cron:
+    env: yes
+    name: ISOLATE_REDIS_PASS
+    value: te2uth4dohLi8i
+    user: auth
+
 - name: Installing autocomplete updater
   cron: name="Isolate autocomplete updater" minute="*/1" hour="*" job="/opt/auth/shared/helper.py cron tasks" user="auth"
