@@ -335,7 +335,7 @@ class AuthHelper(object):
         self.ISOLATE_SPF_SEP = os.getenv('ISOLATE_SPF_SEP', ' | ')
 
         # Go to server immediately if only one server in group
-        self.ISOLATE_BLINDE = str2bool(os.getenv('ISOLATE_BLINDE', False))
+        self.ISOLATE_BLINDE = str2bool(os.getenv('ISOLATE_BLINDE', True))
 
         # Colorize interface
         self.ISOLATE_COLORS = str2bool(os.getenv('ISOLATE_COLORS', False))

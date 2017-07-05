@@ -308,6 +308,30 @@ Set any accessable host as proxy:
 g bigcorp 192.168.1.2 --proxy-host 33.22.44.88 --proxy-port 8022 --proxy-user pfwd
 ```
 
+### Autocomplete
+
+BASH and ZSH, both have a completition support.
+
+Simple search (project) completition:
+```
+$ g tiny<tab><tab>
+...
+$ g tinyfinger
+```
+If you try `g project_name` without `host` argument:
+
+ `a)` in project >1 servers -> just project hosts list
+
+ `b)` in project == 1 server (only one server at project/group)
+
+In `b` variant, helper lookups hosts list, and if only
+one host in project/group -> just login to it with it configuration.
+
+You can disable blind mode by setting in you global/local `bashrc`:
+
+```
+export ISOLATE_BLINDE=false;
+```
 
 <!--complex example:-->
 <!--```-->
@@ -334,9 +358,7 @@ g bigcorp 192.168.1.2 --proxy-host 33.22.44.88 --proxy-port 8022 --proxy-user pf
 
 * Kibana logging
 * Hosts storage plugins (redis, mongo, 24mon)
-* ZSH support
 * Web-Hooks (for add/remove servers and alerting)
-* Zabbix support (work in progress)
 * NewRelic support
 * GeoIP ASN lookup
 * Ansible inventory generate script (and other integrations)
