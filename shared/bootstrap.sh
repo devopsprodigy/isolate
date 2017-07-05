@@ -12,6 +12,10 @@ export ISOLATE_DATA_ROOT;
 export ISOLATE_SHARED;
 export ISOLATE_HELPER;
 export ISOLATE_COLORS;
+export ISOLATE_DEPLOY_LOCK;
+export ISOLATE_COLORS;
+export ISOLATE_DEFAULT_PROJECT;
+
 
 export LANG="en_US.UTF-8";
 export LC_COLLATE="en_US.UTF-8";
@@ -23,6 +27,11 @@ export LC_TIME="en_US.UTF-8";
 export LC_ALL="en_US.UTF-8";
 
 deploy_lock () {
+    while [ ! -d "${ISOLATE_DATA_ROOT}" ]; do
+        echo "ISOLATE Git root not found: ${ISOLATE_DATA_ROOT} awaiting deploy...";
+        sleep 1;
+    done
+
     while [ -f "${ISOLATE_DEPLOY_LOCK}" ]; do
         echo "Lock found: ${ISOLATE_DEPLOY_LOCK} awaiting deploy end...";
         sleep 1;
