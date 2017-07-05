@@ -346,6 +346,7 @@ class AuthHelper(object):
     def _load_data(self):
         self.hosts_dump = sorted(self.db.get_hosts(), key=itemgetter('project_name'))
         self.projects = list(sorted(set(self.db.get_projects())))
+        self.projects = [x.lower() for x in self.projects]
         LOGGER.debug('_load_data')
         LOGGER.debug(json.dumps(self.hosts_dump, indent=4))
         LOGGER.debug(json.dumps(self.projects, indent=4))
