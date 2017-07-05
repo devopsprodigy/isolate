@@ -59,7 +59,7 @@ auth_callback () {
 
 g () {
     if [[ $# -eq 0 ]] ; then
-        echo -e "\n  Usage: g <project|host> [server_name] [ --user | --port | --nosudo | --debug ] \n";
+        echo -e "\\n  Usage: g <project|host> [server_name] [ --user | --port | --nosudo | --debug ] \\n";
         return
     elif [[ $# -gt 0 ]] ; then
         deploy_lock
@@ -69,7 +69,7 @@ g () {
 
 s () {
     if [[ $# -eq 0 ]] ; then
-        echo -e "\n  Usage: s <query> \n";
+        echo -e "\\n  Usage: s <query> \\n";
         return
     elif [[ $# -gt 0 ]] ; then
         deploy_lock
