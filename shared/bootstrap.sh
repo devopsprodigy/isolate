@@ -124,9 +124,19 @@ auth-add-project-config () {
 }
 
 auth-del-project-config () {
-    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "del-project-config" "${@}";
+    if [[ $# -eq 0 ]] ; then
+        echo -e "\\n  Usage: auth-del-project-config <project_name>\\n";
+        return
+    elif [[ $# -gt 0 ]] ; then
+        "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "del-project-config" "${@}";
+    fi
 }
 
 auth-dump-project-config () {
-    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "dump-project-config" "${@}";
+    if [[ $# -eq 0 ]] ; then
+        echo -e "\\n  Usage: auth-dump-project-config <project_name>\\n";
+        return
+    elif [[ $# -gt 0 ]] ; then
+        "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "dump-project-config" "${@}";
+    fi
 }

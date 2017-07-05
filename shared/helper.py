@@ -41,7 +41,7 @@ def init_args():
 
     arg_parser = argparse.ArgumentParser(prog='helper', epilog='------',
                                          description='Auth shell helper')
-    arg_parser.add_argument('action', type=str, nargs=1, choices=['search', 'go'])
+    arg_parser.add_argument('action', type=str, nargs=1, choices=['search', 'go', 'cron'])
     arg_parser.add_argument('sargs', type=str, nargs='+',
                             help='[search server_id | go project | go project server_name]')
     arg_parser.add_argument('--helper-debug', action='store_true')
@@ -643,6 +643,9 @@ def main():
                 helper.print_hosts(conn.search_results, ambiguous=True)
         else:
             LOGGER.critical('args not match')
+
+    elif args.action[0] == 'cron':
+
     else:
         LOGGER.critical('Unknown action: ' + args.action[0])
 
