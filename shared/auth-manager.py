@@ -93,11 +93,15 @@ class AuthManager(object):
             if re.match('^[A-Za-z,\d\-]*$', self.params['project_name']) is None and len(self.params['project_name']) < 48:
                 LOGGER.critical('[project_name] Validation not passed')
                 sys.exit(1)
+            self.params['project_name'] = self.params['project_name'].lower()
 
         self.params['server_name'] = self.params['server_name'][0]
-        if not is_valid_fqdn(self.params['server_name']):
-            LOGGER.critical('[server_name] Validation not passed')
-            sys.exit(1)
+
+        if self.params['server_name'] is not None:
+            if not is_valid_fqdn(self.params['server_name']):
+                LOGGER.critical('[server_name] Validation not passed')
+                sys.exit(1)
+            self.params['server_name'] = self.params['server_name'].lower()
 
         # SSH Options
         self.params['server_ip'] = self.params['ip'][0]

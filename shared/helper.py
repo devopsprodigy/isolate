@@ -195,7 +195,9 @@ class ServerConnection(object):
     # resolve host configuratin
     #
     def resolve(self):
+        self._get_project_config()
         self._get_host_config()
+        self._get_proxy_config()
 
     #
     # build commands

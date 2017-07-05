@@ -269,6 +269,9 @@ if __name__ == '__main__':
     if args.proxy_host:
         if args.debug:
             ssh_proxy_args.append('-v')
+        else:
+            ssh_proxy_args.append('-s')
+
         if bool(host_meta['proxy_user']):
             ssh_proxy_args.append('-l ' + str(host_meta['proxy_user']))
         if bool(host_meta['proxy_port']):
