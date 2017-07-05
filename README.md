@@ -365,5 +365,5 @@ export ISOLATE_BLINDE=false;
 * SELinux Support
 * Multi-Hop proxy
 * Encrypted block device setup How-To
-* Paranoic setup mode
+* Paranoic setup
 * [Ideas?](mailto:ilya.yakovlev@me.com)
