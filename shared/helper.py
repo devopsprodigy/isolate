@@ -96,15 +96,17 @@ class IsolateZabbixHosts(object):
 
     def get_projects(self):
         return list(sorted(set(self.projects)))
+    def put_projects_list(self):
+        raise Exception('Not implemented')
 
 
 class IsolateRedisHosts(object):
     def __init__(self):
         self.projects = list()
         self.hosts_dump = list()
-        self.redis = Redis(host=os.getenv('ISOLATE_REDIS_HOST'),
+        self.redis = Redis(host=os.getenv('ISOLATE_REDIS_HOST', '127.0.0.1'),
                            port=int(os.getenv('ISOLATE_REDIS_PORT', 6379)),
-                           password=os.getenv('ISOLATE_REDIS_PASS'),
+                           password=os.getenv('ISOLATE_REDIS_PASS', None),
                            db=int(os.getenv('ISOLATE_REDIS_DB', 0)))
 
     def get_hosts(self):
@@ -117,6 +119,9 @@ class IsolateRedisHosts(object):
 
     def get_projects(self):
         return list(sorted(set(self.projects)))
+
+    def put_projects_list(self):
+        self.redis.set(self.projects)
 
 
 class ServerConnection(object):
@@ -234,11 +239,21 @@ class AuthHelper(object):
 
     def __init__(self, args, unknown_args):
         self.uuid = str(uuid4())
-        self.projects = None
         self.time_start = time()
         self.args = args
         self.unknown_args = unknown_args
         self._init_env_vars()
+        self.hosts_dump = []
+        self.projects = []
+
+        if self.ISOLATE_BACKEND == 'redis':
+            self.db = IsolateRedisHosts()
+        elif self.ISOLATE_BACKEND == 'zabbix':
+            self.db = IsolateZabbixHosts()
+        else:
+            LOGGER.critical('Incorrect backend')
+            sys.exit(1)
+
         self._load_data()
         LOGGER.debug('AuthHelper init done')
 
@@ -322,19 +337,8 @@ class AuthHelper(object):
         self.ISOLATE_SPF = os.getenv('ISOLATE_SPF', 'server_id server_ip server_name').strip().split(' ')
 
     def _load_data(self):
-        self.hosts_dump = []
-        self.projects = []
-        if self.ISOLATE_BACKEND == 'redis':
-            db = IsolateRedisHosts()
-        elif self.ISOLATE_BACKEND == 'zabbix':
-            db = IsolateZabbixHosts()
-        else:
-            LOGGER.critical('Incorrect backend')
-            sys.exit(1)
-
-        self.hosts_dump = sorted(db.get_hosts(), key=itemgetter('project_name'))
-        self.projects = list(sorted(set(db.get_projects())))
-
+        self.hosts_dump = sorted(self.db.get_hosts(), key=itemgetter('project_name'))
+        self.projects = list(sorted(set(self.db.get_projects())))
         LOGGER.debug('_load_data')
         LOGGER.debug(json.dumps(self.hosts_dump, indent=4))
         LOGGER.debug(json.dumps(self.projects, indent=4))
@@ -431,7 +435,7 @@ class AuthHelper(object):
         else:
             return '{0}{1}{2}'.format(colors.get(color), text, colors.get('reset'))
 
-    def ljust_algin(self, host, **kwargs):
+    def ljust_algin(self, host):
         # Minimum field size (add spaces)
         ljust_size = {
             'project_name': 8,
@@ -534,6 +538,9 @@ class AuthHelper(object):
             self.print_p(total_tpl)
         else:
             self.print_p('')
+
+    def autocomplete_update(self):
+        self.db.put_projects_list()
 
 
 def main():
@@ -645,7 +652,9 @@ def main():
             LOGGER.critical('args not match')
 
     elif args.action[0] == 'cron':
-
+        # update autocomplete projects_list
+        LOGGER.debug(helper.projects)
+        helper.autocomplete_update()
     else:
         LOGGER.critical('Unknown action: ' + args.action[0])
 

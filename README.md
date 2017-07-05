@@ -232,7 +232,28 @@ $ auth-add-project-config --project NewProject --proxy-id 10001 --port 2222
 
 Host config override per project setting.
 
-### G - aka go to server
+### S - aka search
+
+```
+[auth1][~]# s aws
+
+drugstore
+------
+100009  | 4.1.1.1          | aws-eu-prod
+
+powerrangers
+------
+100007  | 3.1.1.1          | aws-eu-prod
+100008  | 3.1.1.2          | aws-eu-reserve
+
+------
+Total: 3
+
+[auth1][~]#
+```
+
+
+### G - aka go
 
 simple usage (just go to any server by ip with default user/port/key):
 ```
