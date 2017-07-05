@@ -45,9 +45,6 @@ _project_host_bash()
 
     hosts_list=$(redis-cli -a ${ISOLATE_REDIS_PASS} get "complete_hosts_${prev_word}" )
 
-
-    hosts_list=$(jq -r --arg query "${prev_word}" '.[] | select(.project==$query) | "\(.server_name_pretty)"' "${ITS_HOSTS_DATA}/hosts.json" 2>/dev/null | tr '[:upper:]' '[:lower:]'  2>>/dev/null )
-
     if [ "${COMP_CWORD}" -eq 1 ]; then
         COMPREPLY=( $(compgen -W "${projects_list}" -- "${cur_word}") )
     elif [ "${COMP_CWORD}" -eq 2 ]; then
