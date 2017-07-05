@@ -422,7 +422,7 @@ class AuthHelper(object):
         self.ISOLATE_SPF = os.getenv('ISOLATE_SPF', 'server_id server_ip server_name').strip().split(' ')
 
     def _load_data(self):
-        self.hosts_dump = sorted(self.db.get_hosts(), key=itemgetter('project_name'))
+        self.hosts_dump = sorted(self.db.get_hosts(), key=itemgetter('project_name', 'server_name'))
         self.projects = list(sorted(set(self.db.get_projects())))
         self.projects = [x.lower() for x in self.projects]
         self.projects_configs = self.db
@@ -444,7 +444,7 @@ class AuthHelper(object):
                                        'server_id',
                                        'server_ip',
                                        'os_version',
-                                       'asn'])  # 'alerts'
+                                       'geoip_asn'])  # 'alerts'
 
         exact_match = kwargs.get('exact_match', False)
 
