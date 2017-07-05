@@ -267,8 +267,8 @@ if __name__ == '__main__':
     # ProxyCommand
     # if configs present
     if args.proxy_host:
-        if args.debug:
-            ssh_proxy_args.append('-v')
+        # if args.debug:
+        #     ssh_proxy_args.append('-v')
         if bool(host_meta['proxy_user']):
             ssh_proxy_args.append('-l ' + str(host_meta['proxy_user']))
         if bool(host_meta['proxy_port']):
