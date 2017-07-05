@@ -22,7 +22,7 @@ _projects_bash()
     cur_word="${COMP_WORDS[COMP_CWORD]}"
     prev_word="${COMP_WORDS[COMP_CWORD-1]}"
 
-    projects_list=$(cat "${ITS_HOSTS_DATA}/projects.txt")
+    projects_list=$(redis-cli -a ${ISOLATE_REDIS_PASS} get "projects_list")
 
     if [ "${COMP_CWORD}" -eq 1 ]; then
         COMPREPLY=( $(compgen -W "${projects_list}" -- "${cur_word}") )

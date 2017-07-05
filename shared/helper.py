@@ -121,7 +121,7 @@ class IsolateRedisHosts(object):
         return list(sorted(set(self.projects)))
 
     def put_projects_list(self):
-        self.redis.set('projects_list', self.projects)
+        self.redis.set('projects_list', ' '.join(self.projects))
 
 
 class ServerConnection(object):
