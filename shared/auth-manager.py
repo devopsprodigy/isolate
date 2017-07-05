@@ -11,9 +11,7 @@ import logging
 import socket
 
 LOGGER = logging.getLogger('auth-manager')
-LOG_FORMAT = '[%(asctime)s] [%(levelname)6s] %(name)s %(message)s'
-logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
-
+LOG_FORMAT = '[%(levelname)6s] %(name)s %(message)s'
 
 def is_valid_ipv4_address(address):
     try:
@@ -55,15 +53,12 @@ class AuthManager(object):
 
     def __init__(self, params):
         self.params = params
-        self.action = params['action'][0]
-        self.params['updated_by'] = os.getenv('USER', 'NO_USER_ENV')
-        self.params['updated_at'] = int(time())
-        self.params['server_id'] = self.params['server_id'][0]
-        self.validate_params()
+        self.action = self.params['action'][0]
         self.redis = Redis(host=os.getenv('ISOLATE_REDIS_HOST', '127.0.0.1'),
                            port=int(os.getenv('ISOLATE_REDIS_PORT', 6379)),
                            password=os.getenv('ISOLATE_REDIS_PASS', None),
                            db=int(os.getenv('ISOLATE_REDIS_DB', 0)))
+        self.validate_params()
 
     def process_args(self):
         if self.action == 'add-host':
@@ -82,20 +77,22 @@ class AuthManager(object):
             LOGGER.critical('action "{0}" not found'.format(self.action))
 
     def validate_params(self):
-        self.params['action'] = self.params['action'][0]
-        if self.params['action'] is not None:
-            if re.match('^[A-Za-z,\d\-]*$', self.params['action']) is None and len(self.params['action']) < 48:
-                LOGGER.critical('[action] Validation not passed')
-                sys.exit(1)
+        self.params['updated_by'] = os.getenv('USER', 'NO_USER_ENV')
+        self.params['updated_at'] = int(time())
+
+        if self.params['server_id'] is not None:
+            self.params['server_id'] = self.params['server_id'][0]
+
+        # if self.params['action'] is not None:
+        #     if re.match('^[A-Za-z,\d\-]*$', self.params['action']) is None:
+        #         LOGGER.critical('[action] Validation not passed')
+        #         sys.exit(1)
 
         self.params['project_name'] = self.params['project'][0]
         if self.params['project_name'] is not None:
             if re.match('^[A-Za-z,\d\-]*$', self.params['project_name']) is None and len(self.params['project_name']) < 48:
                 LOGGER.critical('[project_name] Validation not passed')
                 sys.exit(1)
-
-        self.params['server_id'] = self.params['server_id'][0]
-
 
         self.params['server_name'] = self.params['server_name'][0]
         if not is_valid_fqdn(self.params['server_name']):
@@ -104,11 +101,11 @@ class AuthManager(object):
 
         # SSH Options
         self.params['server_ip'] = self.params['ip'][0]
-
-        if not is_valid_ipv4_address(self.params['server_ip']) \
-                and not is_valid_ipv6_address(self.params['server_ip']):
-            LOGGER.critical('[server_ip] Validation not passed')
-            sys.exit(1)
+        if self.params['server_ip']:
+            if not is_valid_ipv4_address(self.params['server_ip']) \
+                    and not is_valid_ipv6_address(self.params['server_ip']):
+                LOGGER.critical('[server_ip] Validation not passed')
+                sys.exit(1)
 
         self.params['server_port'] = self.params['port'][0]
         if self.params['server_port'] is not None:
@@ -129,7 +126,6 @@ class AuthManager(object):
                 sys.exit(1)
         self.params['server_nosudo'] = self.params['nosudo']
 
-    def add_host(self):
         # Meta clean up
         del self.params['action']
         del self.params['project']
@@ -139,14 +135,15 @@ class AuthManager(object):
         del self.params['nosudo']
         del self.params['debug']
 
+    def add_host(self):
         # Put params
         if self.redis.get('offset_server_id') is None:
-            self.redis.set('offset_server_id', self.HOSTS_ID_DEFAULT_OFFSET)
+            self.redis.set('offset_server_id', self.OFFSET_SERVER_ID)
 
         self.params['server_id'] = self.redis.incr('offset_server_id')
         redis_key = 'server_' + str(self.params['server_id'])
         self.redis.set(redis_key, json.dumps(self.params))
-        print('Database updated: {0}'.format(self.params['server_id']))
+        LOGGER.info('Database updated: {0}'.format(self.params['server_id']))
 
     def del_host(self):
         if self.params['server_id'] is None:
@@ -154,7 +151,7 @@ class AuthManager(object):
         else:
             redis_key = 'server_{0}'.format(self.params['server_id'])
             self.redis.delete(redis_key)
-            print(redis_key + ' deleted')
+            LOGGER.warn(redis_key + ' deleted')
 
     def dump_host(self):
         if self.params['server_id'] is not None:
@@ -168,11 +165,11 @@ class AuthManager(object):
         # add default project wide ssh config
         redis_key = 'ssh_config_{0}'.format(self.params['project_name'])
         if self.redis.get(redis_key) is not None:
-            LOGGER.critical('[{}] Config already exist'.format(redis_key))
+            LOGGER.critical('"{}" already exist'.format(redis_key))
             sys.exit(1)
         else:
             self.redis.set(redis_key, json.dumps(self.params))
-            print('Config for {0} added'.format(self.params['project_name']))
+            LOGGER.info('Config for {0} added'.format(self.params['project_name']))
 
     def del_project_config(self):
         if self.params['project_name'] is None:
@@ -180,7 +177,7 @@ class AuthManager(object):
         else:
             redis_key = 'ssh_config_{0}'.format(self.params['project_name'])
             self.redis.delete(redis_key)
-            print(redis_key + ' deleted')
+            LOGGER.warn(redis_key + ' deleted')
 
     def dump_project_config(self):
         if self.params['project_name'] is not None:
@@ -194,20 +191,29 @@ class AuthManager(object):
 def main():
     arg_parser = argparse.ArgumentParser(prog='auth-manager', epilog='------',
                                          description='Auth management shell helper')
-    arg_parser.add_argument('action', type=str, nargs=1)
+    arg_parser.add_argument('action', type=str, nargs=1, default=[None])
     arg_parser.add_argument('--project', type=str, nargs=1,
                             default=[os.getenv('ISOLATE_DEFAULT_PROJECT', 'main')])
-    arg_parser.add_argument('--server-name', type=str, nargs=1)
-    arg_parser.add_argument('--ip', type=str, nargs=1)
-    arg_parser.add_argument('--port', type=int, nargs=1, default=[None])
+    arg_parser.add_argument('--server-name', type=str, nargs=1, default=[None])
+    arg_parser.add_argument('--ip', '--server-ip', type=str, nargs=1, default=[None])
+
+    arg_parser.add_argument('--port', '--server-port', type=int, nargs=1, default=[None])
     arg_parser.add_argument('--user', type=str, nargs=1, default=[None])
     arg_parser.add_argument('--nosudo', action='store_true')
+
     arg_parser.add_argument('--proxy-id', type=int, nargs=1,
                             default=[None], help="server_id of proxy")
     arg_parser.add_argument('--server-id', type=int, nargs=1, default=[None],
                             help="server_id (for del-host)")
+
     arg_parser.add_argument('--debug', action='store_true')
     args = arg_parser.parse_args()
+
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
+    else:
+        logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
+
     am = AuthManager(args.__dict__)
     am.process_args()
 

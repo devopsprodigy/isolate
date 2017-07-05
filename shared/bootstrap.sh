@@ -125,10 +125,10 @@ auth-del-host () {
 
 auth-add-project-config () {
     if [[ $# -eq 0 ]] ; then
-        echo -e "\\n  Usage: auth-add-project-config --project <project_name> --port 3222 --user root3 --nosudo \\n";
+        echo -e "\\n  Usage: auth-add-project-config <project_name> --port 3222 --user root3 --nosudo \\n";
         return
     elif [[ $# -gt 0 ]] ; then
-        "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "add-project-config" "${@}";
+        "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "add-project-config" --project "${@}";
     fi
 }
 
@@ -137,7 +137,7 @@ auth-del-project-config () {
         echo -e "\\n  Usage: auth-del-project-config <project_name>\\n";
         return
     elif [[ $# -gt 0 ]] ; then
-        "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "del-project-config" "${@}";
+        "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "del-project-config" --project "${@}";
     fi
 }
 
@@ -146,6 +146,6 @@ auth-dump-project-config () {
         echo -e "\\n  Usage: auth-dump-project-config <project_name>\\n";
         return
     elif [[ $# -gt 0 ]] ; then
-        "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "dump-project-config" "${@}";
+        "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "dump-project-config" --project "${@}";
     fi
 }
