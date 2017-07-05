@@ -14,7 +14,7 @@ import re
 from redis import Redis
 from operator import itemgetter
 from pyzabbix import ZabbixAPI
-# from AuthCore import __version__
+# from IsolateCore import __version__
 
 
 LOG_FORMAT = '[%(levelname)s] %(name)s %(message)s'

@@ -22,7 +22,7 @@ _projects_bash()
     cur_word="${COMP_WORDS[COMP_CWORD]}"
     prev_word="${COMP_WORDS[COMP_CWORD-1]}"
 
-    projects_list=$(redis-cli -a ${ISOLATE_REDIS_PASS} get "projects_list")
+    projects_list=$(redis-cli -a ${ISOLATE_REDIS_PASS} get "projects_list" | tr '[:upper:]' '[:lower:]'  2>>/dev/null)
 
     if [ "${COMP_CWORD}" -eq 1 ]; then
         COMPREPLY=( $(compgen -W "${projects_list}" -- "${cur_word}") )
@@ -43,9 +43,9 @@ _project_host_bash()
     cur_word="${COMP_WORDS[COMP_CWORD],,}"
     prev_word="${COMP_WORDS[COMP_CWORD-1],,}"
 
-    projects_list=$(redis-cli -a ${ISOLATE_REDIS_PASS} get "projects_list")
+    projects_list=$(redis-cli -a ${ISOLATE_REDIS_PASS} get "projects_list" | tr '[:upper:]' '[:lower:]'  2>>/dev/null)
 
-    hosts_list=$(redis-cli -a ${ISOLATE_REDIS_PASS} get "complete_hosts_${prev_word}" )
+    hosts_list=$(redis-cli -a ${ISOLATE_REDIS_PASS} get "complete_hosts_${prev_word}" | tr '[:upper:]' '[:lower:]'  2>>/dev/null )
 
     if [ "${COMP_CWORD}" -eq 1 ]; then
         COMPREPLY=( $(compgen -W "${projects_list}" -- "${cur_word}") )
