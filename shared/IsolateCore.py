@@ -3,6 +3,7 @@
 import sys
 import os
 import socket
+import re
 import GeoIP
 
 # Common snippets and funcs for use in other scripts (tiny lib)

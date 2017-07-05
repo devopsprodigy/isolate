@@ -15,7 +15,6 @@ LOGGER = logging.getLogger('auth-manager')
 LOG_FORMAT = '[%(levelname)6s] %(name)s %(message)s'
 
 
-
 class AuthManager(object):
 
     OFFSET_SERVER_ID = 10000
