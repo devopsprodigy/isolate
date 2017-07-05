@@ -78,30 +78,55 @@ s () {
 }
 
 auth-add-user () {
-    useradd "${1}" -m --groups auth;
-    passwd "${1}";
+    if [[ $# -eq 0 ]] ; then
+        echo -e "\\n  Usage: auth-add-user <username> \\n";
+        return
+    elif [[ $# -gt 0 ]] ; then
+        useradd "${1}" -m --groups auth;
+        passwd "${1}";
+    fi
 }
 
 auth-add-host () {
-    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "add-host" "${@}";
+    if [[ $# -eq 0 ]] ; then
+        echo -e "\\n  Usage: auth-add-host --project <project_name> --server-name <server_name> --ip 1.2.3.4 --port 22 --user root --nosudo \\n";
+        return
+    elif [[ $# -gt 0 ]] ; then
+        "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "add-host" "${@}";
+    fi
 }
 
 auth-dump-host () {
-    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "dump-host" --server-id "${@}";
+    if [[ $# -eq 0 ]] ; then
+        echo -e "\\n  Usage: auth-dump-host <server_id>\\n";
+        return
+    elif [[ $# -gt 0 ]] ; then
+        "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "dump-host" --server-id "${@}";
+    fi
 }
 
 auth-del-host () {
-    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "del-host" --server-id "${@}";
+    if [[ $# -eq 0 ]] ; then
+        echo -e "\\n  Usage: auth-del-host <server_id>\\n";
+        return
+    elif [[ $# -gt 0 ]] ; then
+        "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "del-host" --server-id "${@}";
+    fi
 }
 
 auth-add-project-config () {
-    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "add-project-config" --project "${@}";
+    if [[ $# -eq 0 ]] ; then
+        echo -e "\\n  Usage: auth-add-project-config --project <project_name> --port 3222 --user root3 --nosudo \\n";
+        return
+    elif [[ $# -gt 0 ]] ; then
+        "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "add-project-config" "${@}";
+    fi
 }
 
 auth-del-project-config () {
-    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "del-project-config" --project "${@}";
+    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "del-project-config" "${@}";
 }
 
 auth-dump-project-config () {
-    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "dump-project-config" --project "${@}";
+    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "dump-project-config" "${@}";
 }
