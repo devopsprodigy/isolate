@@ -29,6 +29,10 @@ export LC_ALL="en_US.UTF-8";
 PYTHONDONTWRITEBYTECODE=1;
 export PYTHONDONTWRITEBYTECODE;
 
+redis-dev () {
+    redis-cli -a "${ISOLATE_REDIS_PASS}" "${@}";
+}
+
 deploy_lock () {
     while [ ! -d "${ISOLATE_DATA_ROOT}" ]; do
         echo "ISOLATE Git root not found: ${ISOLATE_DATA_ROOT} awaiting deploy...";
@@ -65,7 +69,7 @@ auth_callback () {
     auth_callback_cleanup;
 
     if [ "${ISOLATE_CALLBACK}" == "${ISOLATE_SESSION}" ]; then
-        ${ISOLATE_CALLBACK_CMD:-/bin/false};
+        "${ISOLATE_CALLBACK_CMD:-/bin/false}";
     fi
 }
 
