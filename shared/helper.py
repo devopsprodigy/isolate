@@ -550,7 +550,7 @@ class AuthHelper(object):
         self.db.put_projects_list()
         for project in self.projects:
             hosts = self.search(project, fields=['project_name'])
-            hosts_names = ' '.join([d['server_name'] for d in hosts if 'server_name' in d])
+            hosts_names = ' '.join([d['server_name'] for d in hosts if 'server_name' in d]).lower()
             redis_key = 'complete_hosts_' + project
             self.db.put_hosts_per_project_list(redis_key, hosts_names)
 
