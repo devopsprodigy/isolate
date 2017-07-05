@@ -5,6 +5,7 @@ ISOLATE_SHARED="${ISOLATE_DATA_ROOT}/shared";
 ISOLATE_HELPER="${ISOLATE_SHARED}/helper.py";
 ISOLATE_DEPLOY_LOCK="${ISOLATE_DATA_ROOT}/.deploy";
 ISOLATE_COLORS=true;
+ISOLATE_DEFAULT_PROJECT="${ISOLATE_DEFAULT_PROJECT:-main}";
 
 export USER;
 export ISOLATE_DATA_ROOT;
@@ -82,9 +83,25 @@ auth-add-user () {
 }
 
 auth-add-host () {
-    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "add-host"  "${@}";
+    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "add-host" "${@}";
+}
+
+auth-dump-host () {
+    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "dump-host" --server-id "${@}";
 }
 
 auth-del-host () {
     "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "del-host" --server-id "${@}";
+}
+
+auth-add-project-config () {
+    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "add-project-config" --project "${@}";
+}
+
+auth-del-project-config () {
+    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "del-project-config" --project "${@}";
+}
+
+auth-dump-project-config () {
+    "${ISOLATE_DATA_ROOT}/shared/auth-manager.py" "dump-project-config" --project "${@}";
 }

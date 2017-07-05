@@ -119,6 +119,22 @@ gen-oath-safe username hotp
 # Example: HOTP username - d7dc876e503ec498e532c331f3906153318ec565
 ```
 
+#### local user ssh config template
+
+append to top of `~/.ssh/config`
+```
+Host auth
+    HostName 1.2.3.4
+    Port 22
+    User <username>
+    ForwardAgent no
+    ControlPath ~/.ssh/%r@%h:%p
+    ControlMaster auto
+    ControlPersist 3h
+```
+
+Persistent connection - for easy connection reopen without OTP and password prompt. (3h hours inactive timeout)
+
 ### Data sources
 
 append to `/etc/bashrc`
@@ -175,10 +191,22 @@ auth-add-host --project tinyfinger --server-name do-nyc-dev --ip 2.1.1.3
 auth-add-host --project powerrangers --server-name aws-eu-prod --ip 3.1.1.1
 auth-add-host --project powerrangers --server-name aws-eu-reserve --ip 3.1.1.2
 
+# custom host/port/user options
 auth-add-host --project drugstore --server-name aws-eu-prod --ip 4.1.1.1 --port 25 --user dealer --nosudo
+```
 
-# Host with SSH proxy
 
+### Host behind ssh proxy (client side bastion)
+
+`nc`/`netcat` need to be installed to bastion host.
+Or you can try use `-W host:port` options for ssh,
+but on old Centos/Ubuntu it not work (old sshd versions).
+
+You can use insecure proxy host for connections to other servers safely
+(not need private keys on client side bastion host),
+Over `ProxyCommand` established sub ssh session with all authentication steps.
+
+```
 ## add proxy
 auth-add-host --project bigcorp --server-name au-prod-bastion --ip 45.45.45.45 --port 2232
 Database updated: 10001
@@ -189,8 +217,96 @@ Database updated: 10001
 auth-add-host --project bigcorp --proxy-id 10001 --server-name au-prod-web1 --ip 192.168.1.1
 auth-add-host --project bigcorp --proxy-id 10001 --server-name au-prod-web2 --ip 192.168.1.2
 auth-add-host --project bigcorp --proxy-id 10001 --server-name au-prod-web3 --ip 192.168.1.3
+```
+
+This ability useful for `Amazon VPC`
+or other `VPC` provider with limited global internet ips and internal networking setup.
+
+Also you can setup separate VPN host and use it as next hop, to ablie login to hosts over VPN.
+
+### Project/Group default settings
 
 ```
+$ auth-add-project-config --project NewProject --proxy-id 10001 --port 2222
+```
+
+Host config override per project setting.
+
+### G - aka go to server
+
+simple usage (just go to any server by ip with default user/port/key):
+```
+$ g 1.2.3.4
+```
+
+if connection not established as expected use `--debug`:
+```
+$ g 1.2.3.4 --port 3232 --user cheburajhka --debug
+```
+
+it puts `-v` option for `ssh` and show all helper/wrapper debug logs.
+
+`--nosudo` - by default, ssh session opened with `sudo -i` (become root).
+But on old FreeBSD or systems without `sudo` it not working as expected.
+```
+$ g 1.2.3.4 --nosudo
+```
+
+
+#### G with two arguments
+
+example:
+```
+$ g bigcorp au-prod-web2
+# g bigcorp 192.168.1.1
+```
+
+more complex example:
+```
+s bigcorp
+
+bigcorp
+------
+100012  | 192.168.1.2      | au-prod-web2
+100013  | 192.168.1.3      | au-prod-web3
+100010  | 45.45.45.45      | au-prod-bastion
+100011  | 192.168.1.1      | au-prod-web1
+
+------
+Total: 4
+```
+
+Use exist proxy by server_id (proxy_id == server_id):
+```
+# this line override all project and global defaults
+$ g bigcorp 192.168.1.2 --user root --nosudo --port 4322 --proxy-id 100010
+```
+
+Set any accessable host as proxy:
+```
+g bigcorp 192.168.1.2 --proxy-host 33.22.44.88 --proxy-port 8022 --proxy-user pfwd
+```
+
+
+<!--complex example:-->
+<!--```-->
+<!--[root@auth1 ~]# s bigcorp-->
+
+<!--bigcorp-->
+<!---------->
+<!--100012  | 192.168.1.2      | au-prod-web2-->
+<!--100013  | 192.168.1.3      | au-prod-web3-->
+<!--100010  | 45.45.45.45      | au-prod-bastion-->
+<!--100011  | 192.168.1.1      | au-prod-web1-->
+
+<!---------->
+<!--Total: 4-->
+<!--```-->
+
+<!--in this example we have client side bastion host (our proxy)-->
+<!--and gray (non uniq per client) network with non routable ips and domains.-->
+
+
 
 
 ### Road Map
@@ -198,10 +314,13 @@ auth-add-host --project bigcorp --proxy-id 10001 --server-name au-prod-web3 --ip
 * Kibana logging
 * Hosts storage plugins (redis, mongo, 24mon)
 * ZSH support
-* Web-Hooks
-* Zabbix support
+* Web-Hooks (for add/remove servers and alerting)
+* Zabbix support (work in progress)
 * NewRelic support
-* CI
 * GeoIP ASN lookup
+* Ansible inventory generate script (and other integrations)
 * SELinux Support
+* Multi-Hop proxy
+* Encrypted block device setup How-To
+* Paranoic setup mode
 * [Ideas?](mailto:ilya.yakovlev@me.com)

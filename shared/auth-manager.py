@@ -10,13 +10,9 @@ from redis import Redis
 import logging
 import socket
 
-LOGGER = logging.getLogger('ssh-wrapper')
+LOGGER = logging.getLogger('auth-manager')
 LOG_FORMAT = '[%(asctime)s] [%(levelname)6s] %(name)s %(message)s'
 logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
-
-USER = os.getenv('USER', 'NO_USER_ENV')
-
-params = None
 
 
 def is_valid_ipv4_address(address):
@@ -53,13 +49,154 @@ def is_valid_fqdn(hostname):
     return True
 
 
+class AuthManager(object):
+
+    OFFSET_SERVER_ID = 10000
+
+    def __init__(self, params):
+        self.params = params
+        self.action = params['action'][0]
+        self.params['updated_by'] = os.getenv('USER', 'NO_USER_ENV')
+        self.params['updated_at'] = int(time())
+        self.params['server_id'] = self.params['server_id'][0]
+        self.validate_params()
+        self.redis = Redis(host=os.getenv('ISOLATE_REDIS_HOST', '127.0.0.1'),
+                           port=int(os.getenv('ISOLATE_REDIS_PORT', 6379)),
+                           password=os.getenv('ISOLATE_REDIS_PASS', None),
+                           db=int(os.getenv('ISOLATE_REDIS_DB', 0)))
+
+    def process_args(self):
+        if self.action == 'add-host':
+            self.add_host()
+        elif self.action == 'del-host':
+            self.del_host()
+        elif self.action == 'dump-host':
+            self.dump_host()
+        elif self.action == 'add-project-config':
+            self.add_project_config()
+        elif self.action == 'del-project-config':
+            self.del_project_config()
+        elif self.action == 'dump-project-config':
+            self.dump_project_config()
+        else:
+            LOGGER.critical('action "{0}" not found'.format(self.action))
+
+    def validate_params(self):
+        self.params['action'] = self.params['action'][0]
+        if self.params['action'] is not None:
+            if re.match('^[A-Za-z,\d\-]*$', self.params['action']) is None and len(self.params['action']) < 48:
+                LOGGER.critical('[action] Validation not passed')
+                sys.exit(1)
+
+        self.params['project_name'] = self.params['project'][0]
+        if self.params['project_name'] is not None:
+            if re.match('^[A-Za-z,\d\-]*$', self.params['project_name']) is None and len(self.params['project_name']) < 48:
+                LOGGER.critical('[project_name] Validation not passed')
+                sys.exit(1)
+
+        self.params['server_id'] = self.params['server_id'][0]
+
+
+        self.params['server_name'] = self.params['server_name'][0]
+        if not is_valid_fqdn(self.params['server_name']):
+            LOGGER.critical('[server_name] Validation not passed')
+            sys.exit(1)
+
+        # SSH Options
+        self.params['server_ip'] = self.params['ip'][0]
+
+        if not is_valid_ipv4_address(self.params['server_ip']) \
+                and not is_valid_ipv6_address(self.params['server_ip']):
+            LOGGER.critical('[server_ip] Validation not passed')
+            sys.exit(1)
+
+        self.params['server_port'] = self.params['port'][0]
+        if self.params['server_port'] is not None:
+            if self.params['server_port'] > 65535 or self.params['server_port'] <= 0:
+                LOGGER.critical('[port] Validation not passed')
+                sys.exit(1)
+
+        self.params['server_user'] = self.params['user'][0]
+        if self.params['server_user'] is not None:
+            if re.match('^[A-Za-z,\d\-]*$', self.params['server_user']) is None and len(self.params['server_user']) < 48:
+                LOGGER.critical('[user] Validation not passed')
+                sys.exit(1)
+
+        self.params['proxy_id'] = self.params['proxy_id'][0]
+        if self.params['proxy_id'] is not None:
+            if self.redis.get('server_' + str(self.params['proxy_id'])) is None:
+                LOGGER.critical('proxy with id {} not found!'.format(self.params['proxy_id']))
+                sys.exit(1)
+        self.params['server_nosudo'] = self.params['nosudo']
+
+    def add_host(self):
+        # Meta clean up
+        del self.params['action']
+        del self.params['project']
+        del self.params['ip']
+        del self.params['port']
+        del self.params['user']
+        del self.params['nosudo']
+        del self.params['debug']
+
+        # Put params
+        if self.redis.get('offset_server_id') is None:
+            self.redis.set('offset_server_id', self.HOSTS_ID_DEFAULT_OFFSET)
+
+        self.params['server_id'] = self.redis.incr('offset_server_id')
+        redis_key = 'server_' + str(self.params['server_id'])
+        self.redis.set(redis_key, json.dumps(self.params))
+        print('Database updated: {0}'.format(self.params['server_id']))
+
+    def del_host(self):
+        if self.params['server_id'] is None:
+            LOGGER.critical('--server-id missing')
+        else:
+            redis_key = 'server_{0}'.format(self.params['server_id'])
+            self.redis.delete(redis_key)
+            print(redis_key + ' deleted')
+
+    def dump_host(self):
+        if self.params['server_id'] is not None:
+            key = 'server_{0}'.format(self.params['server_id'])
+            host = self.redis.get(key)
+            print(json.dumps(json.loads(host), indent=4))
+        else:
+            LOGGER.critical('--server-id not passed')
+
+    def add_project_config(self):
+        # add default project wide ssh config
+        redis_key = 'ssh_config_{0}'.format(self.params['project_name'])
+        if self.redis.get(redis_key) is not None:
+            LOGGER.critical('[{}] Config already exist'.format(redis_key))
+            sys.exit(1)
+        else:
+            self.redis.set(redis_key, json.dumps(self.params))
+            print('Config for {0} added'.format(self.params['project_name']))
+
+    def del_project_config(self):
+        if self.params['project_name'] is None:
+            LOGGER.critical('--project missing')
+        else:
+            redis_key = 'ssh_config_{0}'.format(self.params['project_name'])
+            self.redis.delete(redis_key)
+            print(redis_key + ' deleted')
+
+    def dump_project_config(self):
+        if self.params['project_name'] is not None:
+            redis_key = 'ssh_config_{0}'.format(self.params['project_name'])
+            host = self.redis.get(redis_key)
+            print(json.dumps(json.loads(host), indent=4))
+        else:
+            LOGGER.critical('--project not passed')
+
+
 def main():
     arg_parser = argparse.ArgumentParser(prog='auth-manager', epilog='------',
-                                         description='Auth shell helper')
-
+                                         description='Auth management shell helper')
     arg_parser.add_argument('action', type=str, nargs=1)
     arg_parser.add_argument('--project', type=str, nargs=1,
-                            default=[os.getenv('ISOLATE_DEFAULT_PROJECT', 'default')])
+                            default=[os.getenv('ISOLATE_DEFAULT_PROJECT', 'main')])
     arg_parser.add_argument('--server-name', type=str, nargs=1)
     arg_parser.add_argument('--ip', type=str, nargs=1)
     arg_parser.add_argument('--port', type=int, nargs=1, default=[None])
@@ -69,107 +206,10 @@ def main():
                             default=[None], help="server_id of proxy")
     arg_parser.add_argument('--server-id', type=int, nargs=1, default=[None],
                             help="server_id (for del-host)")
-
     arg_parser.add_argument('--debug', action='store_true')
-
     args = arg_parser.parse_args()
-    params = args.__dict__
-
-    redis = Redis(host=os.getenv('ISOLATE_REDIS_HOST'),
-                  port=int(os.getenv('ISOLATE_REDIS_PORT', 6379)),
-                  password=os.getenv('ISOLATE_REDIS_PASS'),
-                  db=int(os.getenv('ISOLATE_REDIS_DB', 0)))
-
-    # Management info
-    action = params['action'][0]
-
-    if action == 'add-host':
-
-        # Validate Args/Params
-        params['action'] = params['action'][0]
-        if params['action'] is not None:
-            if re.match('^[A-Za-z,\d\-]*$', params['action']) is None and len(params['action']) < 48:
-                LOGGER.critical('[action] Validation not passed')
-                sys.exit(1)
-
-        params['project_name'] = params['project'][0]
-        if params['project_name'] is not None:
-            if re.match('^[A-Za-z,\d\-]*$', params['project_name']) is None and len(params['project_name']) < 48:
-                LOGGER.critical('[project_name] Validation not passed')
-                sys.exit(1)
-
-        params['server_name'] = params['server_name'][0]
-        if not is_valid_fqdn(params['server_name']):
-            LOGGER.critical('[server_name] Validation not passed')
-            sys.exit(1)
-
-        # SSH Options
-        params['server_ip'] = params['ip'][0]
-
-        if not is_valid_ipv4_address(params['server_ip']) \
-                and not is_valid_ipv6_address(params['server_ip']):
-            LOGGER.critical('[server_ip] Validation not passed')
-            sys.exit(1)
-
-        params['server_port'] = params['port'][0]
-        if params['server_port'] is not None:
-            if params['server_port'] > 65535 or params['server_port'] <= 0:
-                LOGGER.critical('[port] Validation not passed')
-                sys.exit(1)
-
-        params['server_user'] = params['user'][0]
-        if params['server_user'] is not None:
-            if re.match('^[A-Za-z,\d\-]*$', params['server_user']) is None and len(params['server_user']) < 48:
-                LOGGER.critical('[user] Validation not passed')
-                sys.exit(1)
-
-        params['server_nosudo'] = params['nosudo']
-
-        params['proxy_id'] = params['proxy_id'][0]
-        if params['proxy_id'] is not None:
-            if redis.get('server_' + str(params['proxy_id'])) is None:
-                LOGGER.critical('proxy with id {} not found!'.format(params['proxy_id']))
-                sys.exit(1)
-
-        # Meta
-        params['updated_by'] = USER
-        params['updated_at'] = int(time())
-
-        del params['action']
-        del params['project']
-        del params['ip']
-        del params['port']
-        del params['user']
-        del params['nosudo']
-        del params['debug']
-
-        # Put params
-        if redis.get('offset_server_id') is None:
-            redis.set('offset_server_id', 100000)
-
-        params['server_id'] = redis.incr('offset_server_id')
-        redis_key = 'server_' + str(params['server_id'])
-        redis.set(redis_key, json.dumps(params))
-        print('Database updated: {0}'.format(params['server_id']))
-
-    elif action == 'del-host':
-
-        redis_key = 'server_{0}'.format(params['server_id'][0])
-        redis.delete(redis_key)
-        print(redis_key + ' deleted')
-
-    elif action == 'dump':
-        # Validate Args/Params
-        params['server_id'] = params['server_id'][0]
-        if params['server_id'] is not None:
-            key = 'server_{0}'.format(params['server_id'])
-            host = redis.get(key)
-            print(json.dumps(json.loads(host), indent=4))
-        else:
-            LOGGER.critical('--server-id not passed')
-    else:
-        sys.exit(1)
-
+    am = AuthManager(args.__dict__)
+    am.process_args()
 
 
 if __name__ == '__main__':
