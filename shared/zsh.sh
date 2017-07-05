@@ -11,7 +11,7 @@ _project_zsh () {
     # project complete
     local -a _1st_arguments
     _1st_arguments=(
-        $(cat /mnt/data/auth/Shared/hosts/projects.txt)
+        $(redis-cli -a ${ISOLATE_REDIS_PASS} get "projects_list")
         )
 
     _arguments '*:: :->subcmds' && return 0
@@ -67,7 +67,7 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
 
 zstyle -e ':completion:*:default' list-colors 'reply=("${PREFIX:+=(#bi)($PREFIX:t)(?)*==01=01}:${(s.:.)LS_COLORS}")'
 
-PROMPT='[%F{cyan}%m%f %F{yellow}%1~%f]# '
+PROMPT='[%F{cyan}%m%f %F{yellow}%1~%f]%# '
 
 bindkey  "^[[H"   beginning-of-line
 bindkey  "^[[F"   end-of-line
