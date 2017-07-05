@@ -158,5 +158,19 @@ def main():
         redis.delete(redis_key)
         print(redis_key + ' deleted')
 
+    elif action == 'dump':
+        # Validate Args/Params
+        params['server_id'] = params['server_id'][0]
+        if params['server_id'] is not None:
+            key = 'server_{0}'.format(params['server_id'])
+            host = redis.get(key)
+            print(json.dumps(json.loads(host), indent=4))
+        else:
+            LOGGER.critical('--server-id not passed')
+    else:
+        sys.exit(1)
+
+
+
 if __name__ == '__main__':
     main()
