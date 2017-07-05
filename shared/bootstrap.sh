@@ -26,6 +26,9 @@ export LC_NUMERIC="en_US.UTF-8";
 export LC_TIME="en_US.UTF-8";
 export LC_ALL="en_US.UTF-8";
 
+PYTHONDONTWRITEBYTECODE=1;
+export PYTHONDONTWRITEBYTECODE;
+
 deploy_lock () {
     while [ ! -d "${ISOLATE_DATA_ROOT}" ]; do
         echo "ISOLATE Git root not found: ${ISOLATE_DATA_ROOT} awaiting deploy...";
