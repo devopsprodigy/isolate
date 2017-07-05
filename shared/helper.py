@@ -526,7 +526,7 @@ class AuthHelper(object):
         # Minimum field size (add spaces)
         ljust_size = {
             'project_name': 8,
-            'server_name': 24,
+            'server_name': 18,
             'server_id': 6,
             'server_ip': 16,
             'ssh_config_ip': 16
