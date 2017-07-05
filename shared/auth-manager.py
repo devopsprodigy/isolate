@@ -203,7 +203,7 @@ def main():
 
     arg_parser.add_argument('--port', '--server-port', type=int, nargs=1, default=[None])
     arg_parser.add_argument('--user', type=str, nargs=1, default=[None])
-    arg_parser.add_argument('--nosudo', action='store_true')
+    arg_parser.add_argument('--nosudo', action='store_true', default=None)
 
     arg_parser.add_argument('--proxy-id', type=int, nargs=1,
                             default=[None], help="server_id of proxy")

@@ -18,14 +18,30 @@ from pyzabbix import ZabbixAPI
 
 
 LOG_FORMAT = '[%(levelname)s] %(name)s %(message)s'
-logging.basicConfig(stream=sys.stderr, level=logging.WARN, format=LOG_FORMAT,
-                    datefmt='%H:%M:%S %d-%m-%Y')
+
 
 LOGGER = logging.getLogger('helper')
 pyzabbix_LOGGER = logging.getLogger('pyzabbix')
 pyzabbix_LOGGER.setLevel(logging.WARN)
 pyzabbix_requests_LOGGER = logging.getLogger('requests.packages.urllib3.connectionpool')
 pyzabbix_requests_LOGGER.setLevel(logging.WARN)
+
+
+def merge_dicts(*dict_args):
+    """
+    Given any number of dicts, shallow copy and merge into a new dict,
+    precedence goes to key value pairs in latter dicts.
+    """
+    result = {}
+    for dictionary in dict_args:
+        if dictionary is None:
+            continue
+        else:
+            for key in dictionary.keys():
+                if dictionary[key] is None:
+                    del dictionary[key]
+        result.update(dictionary)
+    return result
 
 
 def str2bool(s):
@@ -124,6 +140,23 @@ class IsolateRedisHosts(object):
     def get_projects(self):
         return list(sorted(set(self.projects)))
 
+    def get_project_config(self, project):
+        redis_key = 'ssh_config_{0}'.format(project)
+        res = self.redis.get(redis_key)
+        if res is not None:
+            return json.loads(res)
+        else:
+            return None
+
+    def get_server_config(self, server_id):
+        redis_key = 'server_{0}'.format(server_id)
+        res = self.redis.get(redis_key)
+        if res is not None:
+            print(json.dumps(json.loads(res), indent=4))
+            return json.loads(res)
+        else:
+            return None
+
     def put_projects_list(self):
         self.redis.set('projects_list', ' '.join(self.projects))
 
@@ -149,7 +182,9 @@ class ServerConnection(object):
     nosudo = None
     proxy_id = None
     #
-    proxy_config = None
+    proxy_host = None
+    proxy_port = None
+    proxy_user = None
     #
     session_exports = list()
     ISOLATE_SESSION = os.getenv('ISOLATE_SESSION', None)
@@ -170,6 +205,36 @@ class ServerConnection(object):
         elif len(self.search_results) == 0:
             LOGGER.debug('ServerConnection.resolve: No hosts in search_results passed')
 
+
+    #
+    # resolve host configuratin
+    #
+    def resolve(self):
+        project_config = self._get_project_config()
+        host_config = self._get_host_config()
+        proxy_config = self._get_proxy_config()
+
+        # LOGGER.critical(json.dumps(project_config, indent=4))
+        # LOGGER.critical(json.dumps(host_config, indent=4))
+        # LOGGER.critical(json.dumps(proxy_config, indent=4))
+
+        complete_host_config = merge_dicts(project_config, host_config, proxy_config)
+        LOGGER.debug(json.dumps(complete_host_config, indent=4))
+
+
+    #
+    # project wide ssh_config [low]
+    #
+    def _get_project_config(self):
+        project_config = self.helper.db.get_project_config(self.project_name)
+        if project_config is None:
+            return None
+        LOGGER.debug('_get_project_config')
+        LOGGER.debug(json.dumps(project_config, indent=4))
+        return project_config
+
+
+
     #
     # host ssh_config [high]
     #
@@ -178,26 +243,22 @@ class ServerConnection(object):
             return
 
         host_config = self.search_results[0]
-
-        if 'server_ip' in host_config.keys():
-            self.host = host_config['server_ip']
-        if 'server_port' in host_config.keys():
-            self.port = host_config['server_port']
-        if 'server_user' in host_config.keys():
-            self.user = host_config['server_user']
-        if 'server_nosudo' in host_config.keys():
-            self.nosudo = host_config['server_nosudo']
-        if 'proxy_id' in host_config.keys():
-            self.proxy_id = host_config['proxy_id']
+        LOGGER.debug('_get_host_config')
+        LOGGER.debug(json.dumps(host_config, indent=4))
+        return host_config
 
 
     #
-    # resolve host configuratin
+    # proxy ssh_config
     #
-    def resolve(self):
-        self._get_project_config()
-        self._get_host_config()
-        self._get_proxy_config()
+    def _get_proxy_config(self):
+        proxy_config = self.helper.db.get_server_config(self.proxy_id)
+        if proxy_config is None:
+            return None
+        LOGGER.debug('_get_proxy_config')
+        LOGGER.debug(json.dumps(proxy_config, indent=4))
+        return proxy_config
+
 
     #
     # build commands
@@ -349,6 +410,7 @@ class AuthHelper(object):
         self.hosts_dump = sorted(self.db.get_hosts(), key=itemgetter('project_name'))
         self.projects = list(sorted(set(self.db.get_projects())))
         self.projects = [x.lower() for x in self.projects]
+        self.projects_configs = self.db
         LOGGER.debug('_load_data')
         LOGGER.debug(json.dumps(self.hosts_dump, indent=4))
         LOGGER.debug(json.dumps(self.projects, indent=4))
