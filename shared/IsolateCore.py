@@ -6,6 +6,8 @@ import socket
 import re
 import GeoIP
 
+sys.dont_write_bytecode = True
+
 # Common snippets and funcs for use in other scripts (tiny lib)
 
 __version__ = '0.2.0'
