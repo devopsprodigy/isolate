@@ -60,6 +60,7 @@ def main():
     arg_parser.add_argument('action', type=str, nargs=1)
     arg_parser.add_argument('--project', type=str, nargs=1)
     arg_parser.add_argument('--server-name', type=str, nargs=1)
+    arg_parser.add_argument('--server-id', type=int, nargs=1)
     arg_parser.add_argument('--ip', type=str, nargs=1)
     arg_parser.add_argument('--port', type=int, nargs=1, default=[None])
     arg_parser.add_argument('--user', type=str, nargs=1, default=[None])
@@ -149,6 +150,20 @@ def main():
         key = 'server_{0}'.format(params['server_id'][0])
         redis.delete(key)
         print(key + ' deleted')
+
+    elif action == 'dump':
+        # Validate Args/Params
+        params['server_id'] = params['server_id'][0]
+        if params['server_id'] is not None:
+            host = redis.get('server_' + params['server_id'])
+            print(json.dumps(json.loads(host), indent=4))
+        else:
+            LOGGER.critical('--server_id not passed')
+
+    else:
+        sys.exit(1)
+
+
 
 if __name__ == '__main__':
     main()
