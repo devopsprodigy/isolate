@@ -14,7 +14,6 @@ import re
 from redis import Redis
 from operator import itemgetter
 from pyzabbix import ZabbixAPI
-import GeoIP
 # from IsolateCore import __version__
 
 
@@ -323,10 +322,7 @@ class ServerConnection(object):
 
 class AuthHelper(object):
 
-    ASN_DB = '/opt/auth/shared/geoip/GeoIPASNum.dat'
-
     def __init__(self, args, unknown_args):
-        self.geoip = GeoIP.open(self.ASN_DB, GeoIP.GEOIP_STANDARD)
         self.uuid = str(uuid4())
         self.time_start = time()
         self.args = args

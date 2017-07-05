@@ -56,5 +56,5 @@ common_utils_yum:
   - pwgen
   - zsh
   - python-GeoIP
-#  - GeoIP-devel
-#  - GeoIP
+  - GeoIP-devel
+  - GeoIP

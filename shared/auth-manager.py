@@ -8,43 +8,12 @@ from time import time
 import argparse
 from redis import Redis
 import logging
-import socket
+from IsolateCore import IsolateGeoIP, is_valid_ipv6_address, is_valid_ipv4_address, is_valid_fqdn
+
 
 LOGGER = logging.getLogger('auth-manager')
 LOG_FORMAT = '[%(levelname)6s] %(name)s %(message)s'
 
-def is_valid_ipv4_address(address):
-    try:
-        socket.inet_pton(socket.AF_INET, address)
-    except AttributeError:
-        try:
-            socket.inet_aton(address)
-        except socket.error:
-            return False
-        return True
-    except socket.error:
-        return False
-
-    return True
-
-
-def is_valid_ipv6_address(address):
-    try:
-        socket.inet_pton(socket.AF_INET6, address)
-    except socket.error:
-        return False
-    return True
-
-
-def is_valid_fqdn(hostname):
-    hostname = str(hostname).lower()
-    if len(hostname) > 255:
-        return False
-    if hostname[-1] == '.' or hostname[0] == '.':
-        return False
-    if re.match('^([a-z\d\-.]*)$', hostname) is None:
-        return False
-    return True
 
 
 class AuthManager(object):
@@ -59,6 +28,7 @@ class AuthManager(object):
                            password=os.getenv('ISOLATE_REDIS_PASS', None),
                            db=int(os.getenv('ISOLATE_REDIS_DB', 0)))
         self.validate_params()
+        self.geoip = IsolateGeoIP()
 
     def process_args(self):
         if self.action == 'add-host':
@@ -145,6 +115,8 @@ class AuthManager(object):
             self.redis.set('offset_server_id', self.OFFSET_SERVER_ID)
 
         self.params['server_id'] = self.redis.incr('offset_server_id')
+        self.params['geoip_asn'] = self.geoip.asn.name_by_addr(self.params['server_ip'])
+
         redis_key = 'server_' + str(self.params['server_id'])
         self.redis.set(redis_key, json.dumps(self.params))
         LOGGER.info('Database updated: {0}'.format(self.params['server_id']))
