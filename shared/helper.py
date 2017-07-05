@@ -150,9 +150,10 @@ class IsolateRedisHosts(object):
 
     def get_server_config(self, server_id):
         redis_key = 'server_{0}'.format(server_id)
+        LOGGER.debug('IsolateRedisHosts: get_server_config')
+        LOGGER.debug(redis_key)
         res = self.redis.get(redis_key)
         if res is not None:
-            print(json.dumps(json.loads(res), indent=4))
             return json.loads(res)
         else:
             return None
@@ -212,14 +213,24 @@ class ServerConnection(object):
     def resolve(self):
         project_config = self._get_project_config()
         host_config = self._get_host_config()
-        proxy_config = self._get_proxy_config()
+        final_config = merge_dicts(project_config, host_config)
+
+        self.host = final_config.get('server_ip', None)
+        self.port = final_config.get('server_port', None)
+        self.user = final_config.get('server_user', None)
+        self.nosudo = final_config.get('server_nosudo', None)
+        self.proxy_id = final_config.get('proxy_id', None)
+
+        proxy_config = merge_dicts(self._get_proxy_config())  # drop null/None fields
+        if proxy_config is not None:
+            self.proxy_host = proxy_config.get('server_ip')
+            self.proxy_port = proxy_config.get('server_port', None)
+            self.proxy_user = proxy_config.get('server_user', None)
 
         # LOGGER.critical(json.dumps(project_config, indent=4))
         # LOGGER.critical(json.dumps(host_config, indent=4))
         # LOGGER.critical(json.dumps(proxy_config, indent=4))
-
-        complete_host_config = merge_dicts(project_config, host_config, proxy_config)
-        LOGGER.debug(json.dumps(complete_host_config, indent=4))
+        # LOGGER.debug(json.dumps(final_config, indent=4))
 
 
     #
@@ -228,12 +239,11 @@ class ServerConnection(object):
     def _get_project_config(self):
         project_config = self.helper.db.get_project_config(self.project_name)
         if project_config is None:
+            LOGGER.debug('_get_project_config: Not found')
             return None
         LOGGER.debug('_get_project_config')
         LOGGER.debug(json.dumps(project_config, indent=4))
         return project_config
-
-
 
     #
     # host ssh_config [high]
@@ -247,18 +257,17 @@ class ServerConnection(object):
         LOGGER.debug(json.dumps(host_config, indent=4))
         return host_config
 
-
     #
     # proxy ssh_config
     #
     def _get_proxy_config(self):
         proxy_config = self.helper.db.get_server_config(self.proxy_id)
         if proxy_config is None:
+            LOGGER.debug('_get_proxy_config: Not found "{}"'.format(self.proxy_id))
             return None
         LOGGER.debug('_get_proxy_config')
         LOGGER.debug(json.dumps(proxy_config, indent=4))
         return proxy_config
-
 
     #
     # build commands
@@ -267,15 +276,21 @@ class ServerConnection(object):
 
         if self.host:
             self.ssh_wrapper_cmd += ' {}'.format(self.host)
-
         if self.port:
             self.ssh_wrapper_cmd += ' --port {}'.format(self.port)
-
         if self.user:
             self.ssh_wrapper_cmd += ' --user {}'.format(self.user)
-
         if self.nosudo:
             self.ssh_wrapper_cmd += ' --nosudo'
+
+        if self.proxy_id:
+            self.ssh_wrapper_cmd += ' --proxy-id {}'.format(self.proxy_id)
+        if self.proxy_host:
+            self.ssh_wrapper_cmd += ' --proxy-host {}'.format(self.proxy_host)
+        if self.proxy_port:
+            self.ssh_wrapper_cmd += ' --proxy-port {}'.format(self.proxy_port)
+        if self.proxy_user:
+            self.ssh_wrapper_cmd += ' --proxy-user {}'.format(self.proxy_user)
 
         if bool(self.unknown_args):
             self.ssh_wrapper_cmd += ' ' + ' '.join(self.unknown_args)
