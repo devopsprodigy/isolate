@@ -80,17 +80,17 @@ append to
 
 `/etc/pam.d/sshd`
 ```
-auth    required    pam_oath.so usersfile=/etc/oath/users.oath window=20 digits=6
+auth       required     pam_oath.so usersfile=/etc/oath/users.oath window=20 digits=6
 ```
 
 Example:
 ```
-auth    required    pam_sepermit.so
-auth    substack    password-auth
-
-auth    required    pam_oath.so usersfile=/etc/oath/users.oath window=20 digits=6
-
-auth    include     postlogin
+#%PAM-1.0
+auth	   required     pam_sepermit.so
+auth	   substack     password-auth
+auth       required     pam_oath.so usersfile=/etc/oath/users.oath window=20 digits=6
+auth	   include	    postlogin
+...>
 ```
 
 ```
