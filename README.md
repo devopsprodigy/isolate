@@ -381,6 +381,23 @@ You can disable blind mode by setting in you global/local `bashrc`:
 export ISOLATE_BLINDE=false;
 ```
 
+## User settings
+
+This options can be added to local user `~/.bashrc`
+
+```
+ISOLATE_COLORS='true'
+export ISOLATE_COLORS
+
+# Search & Print fields for servers list
+ISOLATE_SPF='server_id server_ip server_name'
+export ISOLATE_SPF
+
+# if only one server in project/group
+ISOLATE_BLIND='false'
+export ISOLATE_BLIND
+```
+
 ### Road Map
 
 * Kibana logging
