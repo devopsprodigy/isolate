@@ -335,6 +335,7 @@ g bigcorp 192.168.1.2 --proxy-host 33.22.44.88 --proxy-port 8022 --proxy-user pf
 /opt/auth/logs/${USER}/${USER}_${SSH_HOST}_${SSH_PORT}_${SSH_CONFIG}_1485110002_<uuid>.log
 ```
 
+also with all logs, `ssh.py` creates `*.meta` files with JSON object.
 
 ## SSH Client configuration
 
