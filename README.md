@@ -405,7 +405,8 @@ export ISOLATE_BLIND
 ### Road Map
 
 * Kibana logging
-* Web-Hooks (for add/remove servers and alerting)
+* Servers tags
+* Web-Hooks
 * NewRelic support
 * Ansible inventory generate script
 * SELinux Support
