@@ -398,6 +398,10 @@ ISOLATE_BLIND='false'
 export ISOLATE_BLIND
 ```
 
+## Debug options
+`redis-dev` - open redis-cli with current `$ISOLATE_REDIS_PASS`
+
+
 ### Road Map
 
 * Kibana logging

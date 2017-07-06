@@ -564,7 +564,7 @@ class AuthHelper(object):
 
             host['match_info'] = self.colorize(', '.join(match_info), color='okgreen')
 
-        host['geoip_asn'] = host.get('geoip_asn', '')[:32]
+        host['geoip_asn'] = host.get('geoip_asn', None)
 
         return host
 
