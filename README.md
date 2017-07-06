@@ -358,7 +358,7 @@ Host *
 
 ### Autocomplete
 
-BASH and ZSH, both have a completition support.
+Bash have a completition support.
 
 Simple search (project) completition:
 ```
