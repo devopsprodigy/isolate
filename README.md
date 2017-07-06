@@ -368,38 +368,18 @@ $ g tinyfinger
 ```
 If you try `g project_name` without `host` argument:
 
- `a)` in project >1 servers -> just project hosts list
+ `a)` in project >1 servers. Action: show hosts list for this project.
 
- `b)` in project == 1 server (only one server at project/group)
+ `b)` in project == 1 server. (only one server at project/group)
 
 In `b` variant, helper lookups hosts list, and if only
-one host in project/group -> just login to it with it configuration.
+one host in project/group -> just login to it.
 
 You can disable blind mode by setting in you global/local `bashrc`:
 
 ```
 export ISOLATE_BLINDE=false;
 ```
-
-<!--complex example:-->
-<!--```-->
-<!--[root@auth1 ~]# s bigcorp-->
-
-<!--bigcorp-->
-<!---------->
-<!--100012  | 192.168.1.2      | au-prod-web2-->
-<!--100013  | 192.168.1.3      | au-prod-web3-->
-<!--100010  | 45.45.45.45      | au-prod-bastion-->
-<!--100011  | 192.168.1.1      | au-prod-web1-->
-
-<!---------->
-<!--Total: 4-->
-<!--```-->
-
-<!--in this example we have client side bastion host (our proxy)-->
-<!--and gray (non uniq per client) network with non routable ips and domains.-->
-
-
 
 ### Road Map
 
