@@ -20,7 +20,11 @@ install or update
 
 ## INSTALL
 
-edit `ansible/hosts.ini` and run:
+edit
+
+`ansible/hosts.ini`
+
+and run:
 ```
 cd ansible
 ansible-playbook main.yml
@@ -31,20 +35,26 @@ and restart server
 # reboot
 ```
 
-append to `/etc/bashrc`
+append to
+
+`/etc/bashrc`
 ```
 if [ -f /opt/auth/shared/bash.sh ]; then
     source /opt/auth/shared/bash.sh;
 fi
 ```
 
-append to `/etc/sudoers` or use `visudo`
+append to
+
+`/etc/sudoers` or use `visudo`
 ```
 %auth ALL=(auth) NOPASSWD: /opt/auth/wrappers/ssh.py
 ```
 
 ### SSH
-edit `/etc/ssh/sshd_config`:
+edit
+
+`/etc/ssh/sshd_config`:
 ```
 # AuthorizedKeysFile /etc/keys/%u_authorized_keys
 PermitRootLogin without-password
@@ -66,7 +76,9 @@ systemctl status sshd
 ```
 
 ### OTP
-append to `/etc/pam.d/sshd`
+append to
+
+`/etc/pam.d/sshd`
 ```
 auth    required    pam_oath.so usersfile=/etc/oath/users.oath window=20 digits=6
 ```
@@ -84,7 +96,10 @@ auth    include     postlogin
 ```
 sed -i -e 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/g' /etc/ssh/sshd_config
 ```
-append to `/etc/ssh/sshd_config`
+
+append to
+
+`/etc/ssh/sshd_config`
 
 ```
 Match Group auth
@@ -121,7 +136,11 @@ gen-oath-safe username hotp
 
 #### local user ssh config template
 
-append to top of `~/.ssh/config`
+append to
+
+top of
+
+ `~/.ssh/config`
 ```
 Host auth
     HostName 1.2.3.4
@@ -137,7 +156,9 @@ Persistent connection - for easy connection reopen without OTP and password prom
 
 ### Data sources
 
-append to `/etc/bashrc`
+append to
+
+`/etc/bashrc`
 ```
 ISOLATE_BACKEND=redis; # or zabbix
 export ISOLATE_BACKEND;
@@ -315,6 +336,25 @@ g bigcorp 192.168.1.2 --proxy-host 33.22.44.88 --proxy-port 8022 --proxy-user pf
 ```
 
 
+## SSH Client configuration
+
+`configs/defaults.conf`
+```
+Host *
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    TCPKeepAlive yes
+    ServerAliveInterval 40
+    ServerAliveCountMax 3
+    ConnectTimeout 180
+    ForwardAgent no
+    UseRoaming no
+    User support
+    Port 22
+    IdentityFile /home/auth/.ssh/id_rsa
+```
+
+
 ### Autocomplete
 
 BASH and ZSH, both have a completition support.
@@ -357,7 +397,6 @@ export ISOLATE_BLINDE=false;
 
 <!--in this example we have client side bastion host (our proxy)-->
 <!--and gray (non uniq per client) network with non routable ips and domains.-->
-
 
 
 
