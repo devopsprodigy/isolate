@@ -15,7 +15,7 @@ bastion host setup scripts.
 ## Requirements
 
 * Fresh CentOS 7+ setup
-* [Ansible](http://docs.ansible.com/ansible/intro_installation.html) for
+* [Ansible](http://docs.ansible.com/ansible/intro_installation.html) 2.3+ for
 install or update
 
 ## INSTALL
@@ -308,6 +308,13 @@ Set any accessable host as proxy:
 g bigcorp 192.168.1.2 --proxy-host 33.22.44.88 --proxy-port 8022 --proxy-user pfwd
 ```
 
+## Logs
+
+```
+/opt/auth/logs/${USER}/${USER}_${SSH_HOST}_${SSH_PORT}_${SSH_CONFIG}_1485110002_<uuid>.log
+```
+
+
 ### Autocomplete
 
 BASH and ZSH, both have a completition support.
@@ -357,13 +364,10 @@ export ISOLATE_BLINDE=false;
 ### Road Map
 
 * Kibana logging
-* Hosts storage plugins (redis, mongo, 24mon)
 * Web-Hooks (for add/remove servers and alerting)
 * NewRelic support
-* GeoIP ASN lookup
-* Ansible inventory generate script (and other integrations)
+* Ansible inventory generate script
 * SELinux Support
-* Multi-Hop proxy
 * Encrypted block device setup How-To
 * Paranoic setup
 * [Ideas?](mailto:ilya.yakovlev@me.com)

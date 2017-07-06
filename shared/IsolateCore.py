@@ -55,9 +55,9 @@ class IsolateGeoIP(object):
         self.asn = GeoIP.open(self.ASN_DB, GeoIP.GEOIP_STANDARD)
 
 
-class AuthStorage(object):
+class IsolateStorage(object):
     pass
 
 
-class AuthCore(object):
+class IsolateCore(object):
     pass
