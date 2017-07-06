@@ -9,6 +9,6 @@
 
     - role: auth
       git_repo: https://github.com/itsumma/isolate.git
-      git_branch: "{{ lookup('env','TRAVIS_BRANCH') | default('master') }}"
+      git_branch: master
       deploy_path: /opt/auth
       tags: auth
