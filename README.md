@@ -14,7 +14,7 @@ bastion host setup scripts.
 
 ## Requirements
 
-* Fresh CentOS 7+ setup
+* Fresh CentOS 7 setup
 * [Ansible](http://docs.ansible.com/ansible/intro_installation.html) 2.3+ for
 install or update
 
