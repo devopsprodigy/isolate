@@ -1,3 +1,12 @@
 ---
 - name: Upgrading installed packages (YUM)...
   yum: name=* state=latest update_cache=yes
+  when: ansible_os_family == "RedHat"
+
+- name: Upgrading installed packages (APT)...
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+    DEBIAN_PRIORITY: critical
+    DEBCONF_NONINTERACTIVE_SEEN: true
+  apt: update_cache=yes upgrade=dist cache_valid_time=3600
+  when: ansible_os_family == "Debian"

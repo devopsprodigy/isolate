@@ -14,8 +14,8 @@
   - pam2fa
   - pam-2fa
 
-- include: nginx.yml
-  tags: nginx
+#- include: nginx.yml
+#  tags: nginx
 
 - include: auth-deploy.yml
   tags: auth-deploy

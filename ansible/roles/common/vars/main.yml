@@ -58,3 +58,43 @@ common_utils_yum:
   - python-GeoIP
   - GeoIP-devel
   - GeoIP
+  - caca-utils
+  - qrencode
+
+common_utils_apt:
+  - aptitude
+  - acpid # for proper shutdown on KVM vms
+  - man
+  - vim
+  - atop
+  - htop
+  - iftop
+  - git
+  - wget
+  - curl
+  - sudo
+  - strace
+  - lsof
+  - net-tools
+  - bc
+  - screen
+  - ntp
+  - smartmontools
+  - ncdu
+  - dstat
+  - jq
+  - ipmitool
+  - nano
+  - tmux
+  - mtr-tiny # without GTK
+  - pigz
+  - pv
+  - lsyncd
+  - numactl
+  - make
+  - ethtool
+  - sudo
+  - software-properties-common
+  - libgeoip-dev
+  - qrencode
+  - caca-utils

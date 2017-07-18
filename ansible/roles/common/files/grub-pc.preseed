@@ -1,0 +1,25 @@
+#!/bin/bash
+set -u
+set -e
+device="$1"
+
+debconf-set-selections << EOF
+debconf/priority string critical
+grub-pc	grub-pc/hidden_timeout	boolean	false
+grub-pc	grub-pc/install_devices	multiselect	$device
+grub-pc	grub-pc/install_devices_disks_changed	multiselect	$device
+grub-pc	grub-pc/timeout	string	10
+EOF
+
+#grub-pc	grub-pc/kopt_extracted	boolean	false
+#grub-pc	grub-pc/mixed_legacy_and_grub2	boolean	true
+#grub-pc	grub2/kfreebsd_cmdline	string
+#grub-pc	grub-pc/install_devices_empty	boolean	false
+#grub-pc	grub2/kfreebsd_cmdline_default	string	quiet splash
+#grub-pc	grub-pc/install_devices_failed_upgrade	boolean	true
+#grub-pc	grub-pc/install_devices_failed	boolean	false
+#grub-pc	grub2/linux_cmdline	string
+#grub-pc	grub2/linux_cmdline_default	string	quiet splash
+#grub-pc	grub-pc/postrm_purge_boot_grub	boolean	false
+#grub-pc	grub-pc/chainload_from_menu.lst	boolean	true
+#grub-pc	grub2/device_map_regenerated	note

@@ -1,0 +1,10 @@
+locales locales/locales_to_be_generated multiselect     en_US.UTF-8 ru_RU.UTF-8 UTF-8
+locales locales/default_environment_locale      select  en_US.UTF-8
+
+keyboard-configuration/xkb-keymap select en
+
+tzdata tzdata/Areas select Europe
+tzdata tzdata/Zones/Europe select Moscow
+
+debconf/priority string critical
+# grub-installer/bootdev string /dev/vda

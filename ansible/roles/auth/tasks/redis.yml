@@ -10,9 +10,30 @@
   yum: name={{ item }} state=present update_cache=yes
   with_items:
   - redis
+  when: ansible_distribution == "CentOS"
+
+- apt_repository:
+    repo: 'ppa:chris-lea/redis-server'
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install Redis via apt...
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+  - redis-server
+  when: ansible_distribution == "Ubuntu"
 
 - name: Apply Redis configs...
-  template: src=redis.conf dest=/etc/redis.conf owner=root group=redis mode=0640
+  template: src=redis_centos.conf dest=/etc/redis.conf owner=root group=redis mode=0640
+  when: ansible_distribution == "CentOS"
+
+- name: Apply Redis configs...
+  template: src=redis_ubuntu.conf dest=/etc/redis/redis.conf owner=root group=redis mode=0640
+  when: ansible_distribution == "Ubuntu"
 
 - name: Restart Redis...
   service: name=redis state=restarted enabled=yes
+  when: ansible_distribution == "CentOS"
+
+- name: Restart Redis...
+  systemd: daemon_reload=yes state=restarted name=redis-server enabled=yes
+  when: ansible_distribution == "Ubuntu"
