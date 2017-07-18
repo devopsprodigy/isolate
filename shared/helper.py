@@ -215,7 +215,7 @@ class ServerConnection(object):
         host_config = self._get_host_config()
         final_config = merge_dicts(project_config, host_config)
 
-        self.host = final_config.get('server_ip', None)
+        self.host = final_config.get('server_ip', self.host)
         self.port = final_config.get('server_port', None)
         self.user = final_config.get('server_user', None)
         self.nosudo = final_config.get('server_nosudo', None)

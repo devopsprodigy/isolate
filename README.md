@@ -136,7 +136,11 @@ systemctl status sshd
 
 #### load auth environment
 ```
-# source /opt/auth/shared/bash.sh;
+# source /etc/bashrc
+
+## OR
+
+# source /etc/bash.bashrc
 ```
 
 #### add user
