@@ -3,12 +3,19 @@
   tags:
   - ansible
 
+- include: apparmor.yml
+  tags: apparmor
+  when: ansible_os_family == "Debian"
+
+- include: ubuntu1604.yml
+  tags: ubuntu1604
+  when: GRUB_BOOT_DEVICE is defined and (ubuntu_1604 | default(False))
+
 - include: selinux.yml
   tags: selinux
   when: ansible_distribution == "CentOS"
 
 - include: upgrade-all.yml
-  when: update_all_pkgs | default(false)
   tags: upgrade-all
 
 - include: utils.yml
@@ -34,6 +41,7 @@
 
 - include: firewall.yml
   tags: firewall
+
 
 - meta: flush_handlers
   tags: always

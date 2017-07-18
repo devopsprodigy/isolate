@@ -29,6 +29,10 @@ export LC_ALL="en_US.UTF-8";
 PYTHONDONTWRITEBYTECODE=1;
 export PYTHONDONTWRITEBYTECODE;
 
+gen-oath-safe () {
+    bash --norc "${ISOLATE_DATA_ROOT}/shared/gen-oath-safe.sh" "${@}";
+}
+
 redis-dev () {
     redis-cli -a "${ISOLATE_REDIS_PASS}" "${@}";
 }
@@ -69,7 +73,7 @@ auth_callback () {
     auth_callback_cleanup;
 
     if [ "${ISOLATE_CALLBACK}" == "${ISOLATE_SESSION}" ]; then
-        "${ISOLATE_CALLBACK_CMD:-/bin/false}";
+        ${ISOLATE_CALLBACK_CMD:-/bin/false};
     fi
 }
 
@@ -98,7 +102,7 @@ auth-add-user () {
         echo -e "\\n  Usage: auth-add-user <username> \\n";
         return
     elif [[ $# -gt 0 ]] ; then
-        useradd "${1}" -m --groups auth;
+        useradd "${1}" -m --groups auth -s /bin/bash;
         passwd "${1}";
     fi
 }
