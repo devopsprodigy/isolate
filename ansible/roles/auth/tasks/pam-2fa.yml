@@ -11,10 +11,16 @@
   file: dest=/etc/oath state=directory owner=root group=root mode=0700
   when: ansible_distribution == "CentOS"
 
-- apt_repository:
-    repo: 'ppa:yubico/stable'
+#- apt_repository:
+#    repo: 'ppa:yubico/stable'
+#  when: ansible_distribution == "Ubuntu"
+#
+- name: Installing libpam-yubico from PPA...
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+  - libpam-oath
+  - liboath0
+  - liboath-dev
+  - oathtool
   when: ansible_distribution == "Ubuntu"
 
-- name: Installing libpam-yubico from PPA...
-  apt: name=libpam-yubico state=present update_cache=yes
-  when: ansible_distribution == "Ubuntu"

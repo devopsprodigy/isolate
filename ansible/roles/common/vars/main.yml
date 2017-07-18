@@ -58,6 +58,8 @@ common_utils_yum:
   - python-GeoIP
   - GeoIP-devel
   - GeoIP
+  - caca-utils
+  - qrencode
 
 common_utils_apt:
   - aptitude
@@ -94,3 +96,5 @@ common_utils_apt:
   - sudo
   - software-properties-common
   - libgeoip-dev
+  - qrencode
+  - caca-utils
