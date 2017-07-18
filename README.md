@@ -100,7 +100,7 @@ systemctl status sshd
 
 append to
 
-`/etc/pam.d/sshd`
+`/etc/pam.d/sshd` or `/etc/pam.d/common-auth` for ubuntu
 ```
 auth       required     pam_oath.so usersfile=/etc/oath/users.oath window=20 digits=6
 ```
