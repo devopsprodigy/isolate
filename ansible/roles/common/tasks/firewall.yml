@@ -23,8 +23,10 @@
 - name: Installing iptables rules...
   template: src="{{ firewall_profile | default('common') }}.iptables" dest=/etc/sysconfig/iptables backup=yes
   notify: restore iptables
+  when: ansible_distribution == "CentOS"
 
 - name: Starting iptables...
   service: name=iptables enabled=yes state=started
+  when: ansible_distribution == "CentOS"
 
 - meta: flush_handlers

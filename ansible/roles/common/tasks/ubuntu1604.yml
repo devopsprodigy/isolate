@@ -1,0 +1,4 @@
+---
+
+- name: Set grub-pc preseed values...
+  script: "grub-pc.preseed {{ GRUB_BOOT_DEVICE }}"

@@ -1,4 +1,14 @@
 ---
+- name: Ubuntu 16.04 workarounds
+  gather_facts: no
+  connection: local
+  hosts: all
+  tasks:
+  - name: Installing Python...
+    shell: "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root {{ ansible_ssh_host }} 'apt-get clean ; apt-get update ; apt-get -y install python python-dev python-pip python-simplejson'"
+    when: ubuntu_1604 | default(False)
+    tags: always
+
 - name: Auth host setup...
   gather_facts: yes
   become_user: root

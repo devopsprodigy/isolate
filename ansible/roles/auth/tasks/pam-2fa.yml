@@ -5,6 +5,16 @@
   - liboath
   - gen-oath-safe
   - pam_oath
+  when: ansible_distribution == "CentOS"
 
 - name: Ensure oath etc dir exist...
   file: dest=/etc/oath state=directory owner=root group=root mode=0700
+  when: ansible_distribution == "CentOS"
+
+- apt_repository:
+    repo: 'ppa:yubico/stable'
+  when: ansible_distribution == "Ubuntu"
+
+- name: Installing libpam-yubico from PPA...
+  apt: name=libpam-yubico state=present update_cache=yes
+  when: ansible_distribution == "Ubuntu"

@@ -30,11 +30,16 @@ bastion host setup scripts.
 
 ## Requirements
 
-* Fresh CentOS 7 setup
+* Fresh CentOS 7 or Ubuntu 16.04 setup
 * [Ansible](http://docs.ansible.com/ansible/intro_installation.html) 2.3+ for
 install or update
 
 ## INSTALL
+
+for ubuntu only:
+```
+# apt update; apt install python python-pip python-dev -y
+```
 
 edit
 
@@ -53,7 +58,7 @@ and restart server
 
 append to
 
-`/etc/bashrc`
+`/etc/bashrc` or `/etc/bash.bashrc` for ubuntu:
 ```
 if [ -f /opt/auth/shared/bash.sh ]; then
     source /opt/auth/shared/bash.sh;
@@ -174,7 +179,7 @@ Persistent connection - for easy connection reopen without OTP and password prom
 
 append to
 
-`/etc/bashrc`
+`/etc/bashrc` or `/etc/bash.bashrc` for ubuntu:
 ```
 ISOLATE_BACKEND=redis; # or zabbix
 export ISOLATE_BACKEND;
