@@ -1,9 +1,6 @@
 SUPPORT_USER="support"
 KEY="{{ support_key }}"
 
-set -e;
-set -x;
-
 useradd -m ${SUPPORT_USER}
 mkdir /home/${SUPPORT_USER}/.ssh
 echo ${KEY} >> /home/${SUPPORT_USER}/.ssh/authorized_keys
