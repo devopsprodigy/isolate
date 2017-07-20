@@ -19,6 +19,6 @@
 
     - role: auth
       git_repo: https://github.com/itsumma/isolate.git
-      git_branch: master
+      git_branch: develop
       deploy_path: /opt/auth
       tags: auth

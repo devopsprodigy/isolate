@@ -19,3 +19,7 @@
 
 - include: auth-deploy.yml
   tags: auth-deploy
+
+- name: Copying add-support-user.sh template...
+  template: src=add-support-user.sh dest=/opt/auth/add-support-user.sh mode=644
+  tags: auth-deploy

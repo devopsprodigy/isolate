@@ -206,9 +206,9 @@ export ISOLATE_REDIS_DB;
 #### Zabbix
 
 ```
-ISOLATE_ZABBIX_URL="http://zabbix.95.213.200.160.xip.name"
+ISOLATE_ZABBIX_URL="http://zabbix.srv"
 ISOLATE_ZABBIX_USER="isolate"
-ISOLATE_ZABBIX_PASS="aZ1eil2ooz4Iefah"
+ISOLATE_ZABBIX_PASS="zabbixpass"
 export ISOLATE_ZABBIX_URL;
 export ISOLATE_ZABBIX_USER;
 export ISOLATE_ZABBIX_PASS;
@@ -216,6 +216,9 @@ export ISOLATE_ZABBIX_PASS;
 
 
 #### add server
+
+Login as new user before.
+
 ```
 $ auth-add-host --project starwars --server-name sel-msk-prod --ip 1.1.1.1
 Database updated
