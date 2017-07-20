@@ -33,6 +33,13 @@ gen-oath-safe () {
     bash --norc "${ISOLATE_DATA_ROOT}/shared/gen-oath-safe.sh" "${@}";
 }
 
+add-support-user-helper () {
+    echo "";
+    cat /opt/auth/add-support-user.sh;
+    echo "";
+}
+
+}
 redis-dev () {
     redis-cli -a "${ISOLATE_REDIS_PASS}" "${@}";
 }

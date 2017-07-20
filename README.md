@@ -217,12 +217,29 @@ export ISOLATE_ZABBIX_PASS;
 
 #### add server
 
-Login as new user before.
+Login as new auth user before.
 
 ```
 $ auth-add-host --project starwars --server-name sel-msk-prod --ip 1.1.1.1
 Database updated
 ```
+
+add `support` user on server via auto-generated helper:
+```
+$ add-support-user-helper
+
+SUPPORT_USER="support"
+KEY="<YOU KEY HERE>"
+
+useradd -m ${SUPPORT_USER}
+mkdir /home/${SUPPORT_USER}/.ssh
+echo ${KEY} >> /home/${SUPPORT_USER}/.ssh/authorized_keys
+chmod 600 /home/${SUPPORT_USER}/.ssh/authorized_keys
+chmod 700 /home/${SUPPORT_USER}/.ssh/
+chown -R ${SUPPORT_USER}:${SUPPORT_USER} /home/${SUPPORT_USER}/.ssh/
+echo "${SUPPORT_USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+```
+
 
 #### del server
 ```
