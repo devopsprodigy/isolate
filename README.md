@@ -448,7 +448,7 @@ export ISOLATE_BLIND
 
 ## Debug options
 `redis-dev` - open redis-cli with current `$ISOLATE_REDIS_PASS`
-
+`--debug` - argument in all helpers
 
 ### Road Map
 
