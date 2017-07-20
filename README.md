@@ -406,7 +406,7 @@ Host *
 
 Bash have a completition support.
 
-Cron task under user `auth` update autocomplete data in `redis` every `*/1`
+Cron task under user `auth` update autocomplete data in `redis` every `*/1` minute.
 
 Simple search (project) completition:
 ```
