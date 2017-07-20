@@ -39,7 +39,6 @@ add-support-user-helper () {
     echo "";
 }
 
-}
 redis-dev () {
     redis-cli -a "${ISOLATE_REDIS_PASS}" "${@}";
 }
