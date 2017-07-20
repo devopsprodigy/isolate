@@ -406,6 +406,8 @@ Host *
 
 Bash have a completition support.
 
+Cron task under user `auth` update autocomplete data in `redis` every `*/1`
+
 Simple search (project) completition:
 ```
 $ g tiny<tab><tab>
