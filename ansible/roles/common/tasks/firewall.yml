@@ -8,14 +8,12 @@
   - ansible_distribution == "CentOS"
   - ansible_distribution_major_version == "7"
 
+- name: Installing iptables-persistent (apt)...
+  apt: name=iptables-persistent update_cache=yes state=present
+  when: ansible_distribution == "Ubuntu"
+
 - name: Installing iptables-services...
   yum: name=iptables-services state=present update_cache=yes
-  when:
-  - ansible_distribution == "CentOS"
-  - ansible_distribution_major_version == "7"
-
-- name: SystemD click click...
-  shell: systemctl daemon-reload
   when:
   - ansible_distribution == "CentOS"
   - ansible_distribution_major_version == "7"
@@ -25,8 +23,17 @@
   notify: restore iptables
   when: ansible_distribution == "CentOS"
 
+- name: Installing iptables rules...
+  template: src="{{ firewall_profile | default('common') }}.iptables" dest=/etc/iptables/rules.v4 backup=yes
+  notify: restore iptables-persistent
+  when: ansible_distribution == "Ubuntu"
+
 - name: Starting iptables...
-  service: name=iptables enabled=yes state=started
+  systemd: daemon_reload=yes name=iptables enabled=yes state=started
   when: ansible_distribution == "CentOS"
+
+- name: Starting netfilter-persistent...
+  systemd: daemon_reload=yes name=netfilter-persistent enabled=yes state=restarted
+  when: ansible_distribution == "Ubuntu"
 
 - meta: flush_handlers
