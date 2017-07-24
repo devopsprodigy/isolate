@@ -5,3 +5,6 @@
 
 - name: restore iptables
   shell: iptables-restore < /etc/sysconfig/iptables
+
+- name: restore iptables-persistent
+  shell: iptables-restore < /etc/iptables/rules.v4
