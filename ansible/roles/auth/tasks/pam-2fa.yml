@@ -15,12 +15,13 @@
 #    repo: 'ppa:yubico/stable'
 #  when: ansible_distribution == "Ubuntu"
 #
-- name: Installing libpam-yubico from PPA...
+
+- name: Installing libpam-oath...
   apt: name={{ item }} state=present update_cache=yes
   with_items:
   - libpam-oath
   - liboath0
   - liboath-dev
   - oathtool
-  when: ansible_distribution == "Ubuntu"
+  when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
 

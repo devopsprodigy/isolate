@@ -58,7 +58,7 @@ and restart server
 
 append to
 
-`/etc/bashrc` or `/etc/bash.bashrc` for ubuntu:
+`/etc/bashrc` or `/etc/bash.bashrc` for debian/ubuntu:
 ```
 if [ -f /opt/auth/shared/bash.sh ]; then
     source /opt/auth/shared/bash.sh;
@@ -100,7 +100,7 @@ systemctl status sshd
 
 append to
 
-`/etc/pam.d/sshd` or `/etc/pam.d/common-auth` for ubuntu
+`/etc/pam.d/sshd` or `/etc/pam.d/common-auth` for debian/ubuntu:
 ```
 auth       required     pam_oath.so usersfile=/etc/oath/users.oath window=20 digits=6
 ```
@@ -138,7 +138,7 @@ systemctl status sshd
 ```
 # source /etc/bashrc
 
-## OR
+## OR debian/ubuntu:
 
 # source /etc/bash.bashrc
 ```
@@ -158,6 +158,13 @@ gen-oath-safe username hotp
 
 # and append user secret to /etc/oath/users.oath
 # Example: HOTP username - d7dc876e503ec498e532c331f3906153318ec565
+```
+
+```
+mkdir -p /etc/oath
+touch /etc/oath/users.oath
+chmod 0600 /etc/oath/users.oath
+echo '<user oath record above>' >> /etc/oath/users.oath
 ```
 
 #### local user ssh config template
@@ -184,7 +191,7 @@ Persistent connection - for easy connection reopen without OTP and password prom
 
 append to
 
-`/etc/bashrc` or `/etc/bash.bashrc` for ubuntu:
+`/etc/bashrc` or `/etc/bash.bashrc` for debian/ubuntu:
 ```
 ISOLATE_BACKEND=redis; # or zabbix
 export ISOLATE_BACKEND;
