@@ -30,6 +30,10 @@
   template: src=redis_ubuntu.conf dest=/etc/redis/redis.conf owner=root group=redis mode=0640
   when: ansible_distribution == "Ubuntu"
 
+- name: Apply Redis configs...
+  template: src=redis_debian.conf dest=/etc/redis/redis.conf owner=root group=redis mode=0640
+  when: ansible_distribution == "Debian"
+
 - name: Restart Redis...
   service: name=redis state=restarted enabled=yes
   when: ansible_distribution == "CentOS"

@@ -24,15 +24,6 @@
   - pyOpenSSL
   when: ansible_os_family == "RedHat"
 
-- name: Install common utilites via apt...
-  environment:
-    DEBIAN_FRONTEND: noninteractive
-    DEBIAN_PRIORITY: critical
-    DEBCONF_NONINTERACTIVE_SEEN: true
-  apt: name={{ item }} state=present
-  with_items: "{{ common_utils_apt }}"
-  when: ansible_os_family == "Debian"
-
 - name: Ensure /var/www exist...
   file: state=directory dest=/var/www mode=0755
   tags:
