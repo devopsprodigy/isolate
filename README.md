@@ -1,4 +1,9 @@
 # isolate
+
+[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/isolate_bastion/Lobby)
+
+![Image](main.png)
+
 AUTHENTICATION SERVER 
 
 The idea behind Isolate is that we should somehow manage how do people get access to our servers.   
@@ -15,13 +20,6 @@ What would we do in case someone quits the company - is there an alternative to 
 Technically you should generate and place the bastion host key on endpoint servers, and users will get regular access to Isolate server with the sudoer access to ssh command.
 
 Once they want to connect to the endpoint server, the system executes ssh command and ssh client running with privileged user permissions gets server key and using it the system gets access to the server we need to get access to.
-
-
-[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/isolate_bastion/Lobby)
-
-![Image](main.png)
-
-bastion host setup scripts.
 
 ## Supports
 
