@@ -1,4 +1,11 @@
 ---
+- name: Instaling ansible apt reqs...
+  apt: name={{ item }} state=installed update_cache=yes
+  with_items:
+  - python-pip
+  - python-dev
+  when: ansible_distribution == "Debian"
+
 - name: Installing EPEL repo...
   yum: name=epel-release state=installed
   when: ansible_os_family == "RedHat"

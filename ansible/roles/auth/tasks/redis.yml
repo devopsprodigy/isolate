@@ -20,7 +20,7 @@
   apt: name={{ item }} state=present update_cache=yes
   with_items:
   - redis-server
-  when: ansible_distribution == "Ubuntu"
+  when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
 
 - name: Apply Redis configs...
   template: src=redis_centos.conf dest=/etc/redis.conf owner=root group=redis mode=0640
