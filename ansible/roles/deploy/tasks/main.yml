@@ -29,7 +29,17 @@
   become: yes
   become_user: auth
 
-- name: Set deploy flag...
+- name: Copying public key ...
+  shell: "cat /home/{{ auth_default_user }}/.ssh/id_rsa.pub"
+  register: pub_key
+
+- set_fact:
+    support_key: "{{ pub_key['stdout'] }}"
+
+- name: Copying add-support-user.sh template...
+  template: src=add-support-user.sh dest=/opt/auth/add-support-user.sh mode=644 owner={{ auth_default_user }} group={{ auth_default_user }}
+
+- name: Unset deploy flag...
   become: yes
   become_user: auth
   file:

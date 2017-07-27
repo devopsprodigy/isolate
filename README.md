@@ -221,6 +221,11 @@ export ISOLATE_ZABBIX_PASS;
 ```
 
 
+Load changes
+```
+source /etc/bashrc
+```
+
 #### add server
 
 Login as new auth user before.
@@ -273,10 +278,10 @@ auth-add-host --project drugstore --server-name aws-eu-prod --ip 4.1.1.1 --port 
 
 `nc`/`netcat` need to be installed to bastion host.
 Or you can try use `-W host:port` options for ssh,
-but on old Centos/Ubuntu it not work (old sshd versions).
+but on old Centos/Ubuntu this not work properly (old sshd versions).
 
 You can use insecure proxy host for connections to other servers safely
-(not need private keys on client side bastion host),
+(not need private keys on client side bastion-host),
 Over `ProxyCommand` established sub ssh session with all authentication steps.
 
 ```
@@ -300,7 +305,7 @@ Also you can setup separate VPN host and use it as next hop, to ablie login to h
 ### Project/Group default settings
 
 ```
-$ auth-add-project-config --project NewProject --proxy-id 10001 --port 2222
+$ auth-add-project-config projectname --proxy-id 10001 --port 2222
 ```
 
 Host config override per project setting.

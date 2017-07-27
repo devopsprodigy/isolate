@@ -17,8 +17,16 @@
     - role: common
       tags: common
 
+    - role: redis
+      tags: redis
+
+    - role: pam2fa
+      tags: pam2fa
+
     - role: auth
+      tags: auth
+
+    - role: deploy
       git_repo: https://github.com/itsumma/isolate.git
       git_branch: master
-      deploy_path: /opt/auth
-      tags: auth
+      tags: deploy

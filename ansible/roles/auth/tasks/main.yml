@@ -4,22 +4,3 @@
 
 - include: cron.yml
   tags: cron
-
-- include: redis.yml
-  tags: redis
-
-- include: pam-2fa.yml
-  tags:
-  - pam
-  - pam2fa
-  - pam-2fa
-
-#- include: nginx.yml
-#  tags: nginx
-
-- include: auth-deploy.yml
-  tags: auth-deploy
-
-- name: Copying add-support-user.sh template...
-  template: src=add-support-user.sh dest=/opt/auth/add-support-user.sh mode=644 owner={{ auth_default_user }} group={{ auth_default_user }}
-  tags: auth-deploy
