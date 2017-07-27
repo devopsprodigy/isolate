@@ -4,7 +4,7 @@ fs.inotify.max_user_watches = 16777216
 fs.inotify.max_queued_events = 65536
 
 net.netfilter.nf_conntrack_max = 1548576
-net.nf_conntrack_max = 1548576
+# net.nf_conntrack_max = 1548576
 
 net.core.somaxconn=32768
 net.core.netdev_max_backlog=8192
