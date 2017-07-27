@@ -1,20 +1,14 @@
 ---
-- name: Install 2FA PAM utilites via yum...
+- name: Ensure oath etc dir exist...
+  file: dest=/etc/oath state=directory owner=root group=root mode=0700
+
+- name: Install 2FA PAM utilites...
   yum: name={{ item }} state=present update_cache=yes
   with_items:
   - liboath
   - gen-oath-safe
   - pam_oath
   when: ansible_distribution == "CentOS"
-
-- name: Ensure oath etc dir exist...
-  file: dest=/etc/oath state=directory owner=root group=root mode=0700
-  when: ansible_distribution == "CentOS"
-
-#- apt_repository:
-#    repo: 'ppa:yubico/stable'
-#  when: ansible_distribution == "Ubuntu"
-#
 
 - name: Installing libpam-oath...
   apt: name={{ item }} state=present update_cache=yes
@@ -24,4 +18,3 @@
   - liboath-dev
   - oathtool
   when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
-

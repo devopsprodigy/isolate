@@ -1,14 +1,15 @@
 # isolate
 
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/isolate_bastion/Lobby)
+[![Telegram chat](https://camo.githubusercontent.com/5cd5c1cbf375ddec552e7224d81c3da18a11beb3/68747470733a2f2f706174726f6c617669612e6769746875622e696f2f74656c656772616d2d62616467652f636861742e706e67)](https://t.me/joinchat/BK6B5UH2Wfqie3fsJz_dIg)
 
 ![Image](main.png)
 
 AUTHENTICATION SERVER 
 
-The idea behind Isolate is that we should somehow manage how do people get access to our servers.   
-How can we make this process more secure?  
-How could we prevent a system from being compromised when someone lost the laptop with ssh key.  
+The idea behind Isolate is that we should somehow manage how do people get access to our servers.
+How can we make this process more secure?
+How could we prevent a system from being compromised when someone lost the laptop with ssh key.
 What would we do in case someone quits the company - is there an alternative to just changing all passwords, keys, etc? 
 
 1. Isolate adds OTP 2FA to SSH login. It could be hardware YubiKey or Google Authenticator app. If someone lost the password - OTP key is here and the intruder can't get access to the bastion host.
@@ -220,6 +221,11 @@ export ISOLATE_ZABBIX_PASS;
 ```
 
 
+Load changes
+```
+source /etc/bashrc
+```
+
 #### add server
 
 Login as new auth user before.
@@ -272,10 +278,10 @@ auth-add-host --project drugstore --server-name aws-eu-prod --ip 4.1.1.1 --port 
 
 `nc`/`netcat` need to be installed to bastion host.
 Or you can try use `-W host:port` options for ssh,
-but on old Centos/Ubuntu it not work (old sshd versions).
+but on old Centos/Ubuntu this not work properly (old sshd versions).
 
 You can use insecure proxy host for connections to other servers safely
-(not need private keys on client side bastion host),
+(not need private keys on client side bastion-host),
 Over `ProxyCommand` established sub ssh session with all authentication steps.
 
 ```
@@ -299,7 +305,7 @@ Also you can setup separate VPN host and use it as next hop, to ablie login to h
 ### Project/Group default settings
 
 ```
-$ auth-add-project-config --project NewProject --proxy-id 10001 --port 2222
+$ auth-add-project-config projectname --proxy-id 10001 --port 2222
 ```
 
 Host config override per project setting.
