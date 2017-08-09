@@ -10,9 +10,6 @@
 - name: Making xip www root...
   file: state=directory dest=/var/www/xip owner=root group=root mode=0755
 
-- name: Copying add-support-user.sh template...
-  template: src=add-support-user.sh dest=/var/www/xip/add-support-user.sh mode=644
-
 - name: Installing Nginx repo...
   copy: src=nginx.repo dest="/etc/yum.repos.d/nginx.repo"
   tags: nginx-install
