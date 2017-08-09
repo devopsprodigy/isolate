@@ -202,7 +202,7 @@ export ISOLATE_BACKEND;
 ISOLATE_REDIS_HOST="127.0.0.1";
 ISOLATE_REDIS_PORT="6379";
 ISOLATE_REDIS_DB=0;
-ISOLATE_REDIS_PASS="te2uth4dohLi8i"; # /etc/redis.conf
+ISOLATE_REDIS_PASS="te2uth4dohLi8i"; # ansible/roles/redis/vars/main.yml
 export ISOLATE_REDIS_HOST;
 export ISOLATE_REDIS_PORT;
 export ISOLATE_REDIS_PASS;
