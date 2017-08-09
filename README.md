@@ -57,7 +57,7 @@ and restart server
 
 append to
 
-`/etc/bashrc` or `/etc/bash.bashrc` for debian/ubuntu:
+`/etc/bashrc` (`/etc/bash.bashrc` on debian/ubuntu):
 ```
 if [ -f /opt/auth/shared/bash.sh ]; then
     source /opt/auth/shared/bash.sh;
@@ -66,7 +66,7 @@ fi
 
 append to
 
-`/etc/sudoers` or use `visudo`
+`/etc/sudoers` (or use `visudo`)
 ```
 %auth ALL=(auth) NOPASSWD: /opt/auth/wrappers/ssh.py
 ```
@@ -97,9 +97,9 @@ systemctl status sshd
 
 ### OTP
 
-append to
+add to
 
-`/etc/pam.d/sshd` or `/etc/pam.d/common-auth` for debian/ubuntu:
+`/etc/pam.d/sshd` (`/etc/pam.d/common-auth` on debian/ubuntu):
 ```
 auth       required     pam_oath.so usersfile=/etc/oath/users.oath window=20 digits=6
 ```
@@ -118,7 +118,7 @@ auth	   include	    postlogin
 sed -i -e 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/g' /etc/ssh/sshd_config
 ```
 
-append to
+add to
 
 `/etc/ssh/sshd_config`
 
@@ -190,7 +190,7 @@ Persistent connection - for easy connection reopen without OTP and password prom
 
 append to
 
-`/etc/bashrc` or `/etc/bash.bashrc` for debian/ubuntu:
+`/etc/bashrc` (`/etc/bash.bashrc` for debian/ubuntu):
 ```
 ISOLATE_BACKEND=redis; # or zabbix
 export ISOLATE_BACKEND;
