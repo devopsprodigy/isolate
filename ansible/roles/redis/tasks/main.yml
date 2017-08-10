@@ -1,6 +1,6 @@
 ---
 - name: Generating new password...
-  local_action: shell pwgen 14
+  shell: pwgen 14
   register: pwgen_run
   become: no
 
