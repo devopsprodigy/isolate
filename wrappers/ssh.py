@@ -13,7 +13,7 @@ import uuid
 LOGGER = logging.getLogger('ssh-wrapper')
 LOG_FORMAT = '[%(asctime)s] [%(levelname)6s] %(name)s %(message)s'
 
-__version__ = '0.0.22'
+__version__ = '0.0.24'
 
 # set proper working dir
 working_dir = os.path.dirname(os.path.realpath(__file__))
@@ -27,8 +27,7 @@ ssh_configs_path = data_root + '/configs'
 logs_base_path = data_root + '/logs'
 
 # args prepare
-args = sys.argv[1:]
-
+# args = sys.argv[1:]
 
 # misc
 local_timestamp = int(time.time())
@@ -45,7 +44,7 @@ term_colors = {
 
 
 # ssh config
-ssh_command = '/usr/bin/ssh' + ' -F ' + os.path.join(ssh_configs_path, 'defaults.conf')
+ssh_command = '/usr/bin/ssh' + ' -e none -F ' + os.path.join(ssh_configs_path, 'defaults.conf')
 
 
 def mkdir(path):
@@ -91,6 +90,8 @@ def is_valid_fqdn(hostname):
         return False
     if re.match('^([a-z\d\-.]*)$', hostname) is None:
         return False
+    if hostname.startswith('-'):
+        return False
     return True
 
 
@@ -118,7 +119,9 @@ def verify_args(args):
 
     if args.user is not None:
         user = args.user[0]
-        if re.match('^[A-Za-z,\d\-]*$', user) is None and len(user) < 48:
+        if re.match('^[A-Za-z,\d\-]*$', user) is None or \
+                                        len(user) > 48 or \
+                                        user.startswith('-'):
             LOGGER.critical('[user] Validation not passed')
             sys.exit(1)
 
@@ -126,18 +129,20 @@ def verify_args(args):
         LOGGER.debug('[user] override is set: ' + user)
 
     if args.port is not None:
-        port = args.port
+        port = int(args.port)
         if port > 65535 or port <= 0:
             LOGGER.critical('[port] Validation not passed')
             sys.exit(1)
         else:
-            host['port'] = port
+            host['port'] = int(port)
             LOGGER.debug('[port] override is set: ' + str(port))
 
     # proxy_host
     if args.proxy_host is not None:
         proxy_host = args.proxy_host[0]
-        if is_valid_ipv4_address(proxy_host) or is_valid_ipv6_address(proxy_host) or is_valid_fqdn(proxy_host):
+        if (is_valid_ipv4_address(proxy_host) or \
+                is_valid_ipv6_address(proxy_host) or \
+                is_valid_fqdn(proxy_host)) and not proxy_host.startswith('-'):
             host['proxy_host'] = proxy_host
         else:
             LOGGER.critical('[proxy_host] Validation not passed')
@@ -145,7 +150,9 @@ def verify_args(args):
 
     if args.proxy_user is not None:
         proxy_user = args.proxy_user[0]
-        if re.match('^[A-Za-z\d\-]*$', proxy_user) is None and len(proxy_user) < 48:
+        if re.match('^[A-Za-z\d\-]*$', proxy_user) is None or \
+                                                   len(proxy_user) > 48 or \
+                                                   proxy_user.startswith('-'):
             LOGGER.critical('[proxy_user] Validation not passed')
             sys.exit(1)
 
@@ -153,7 +160,7 @@ def verify_args(args):
         LOGGER.debug('[proxy_user] override is set: ' + proxy_user)
 
     if args.proxy_port is not None:
-        proxy_port = args.proxy_port
+        proxy_port = int(args.proxy_port)
         if proxy_port > 65535 or proxy_port <= 0:
             LOGGER.critical('[proxy_port] Validation not passed')
             sys.exit(1)
