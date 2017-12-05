@@ -60,6 +60,7 @@ common_utils_yum:
   - GeoIP
   - caca-utils
   - qrencode
+  - pwgen
 
 common_utils_apt:
   - aptitude
@@ -98,3 +99,4 @@ common_utils_apt:
   - libgeoip-dev
   - qrencode
   - caca-utils
+  - pwgen

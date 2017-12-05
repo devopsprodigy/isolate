@@ -1,10 +1,10 @@
 ---
-- name: Generating new password...
-  shell: pwgen 14
-  register: pwgen_run
-  become: no
-
-- set_fact: redis_pass="{{ pwgen_run.stdout }}"
+#- name: Generating new password...
+#  shell: pwgen 14
+#  register: pwgen_run
+#  become: no
+#
+#- set_fact: redis_pass="{{ pwgen_run.stdout }}"
 
 - name: Install Redis via yum...
   yum: name={{ item }} state=present update_cache=yes
