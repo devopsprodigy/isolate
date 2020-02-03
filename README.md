@@ -29,7 +29,7 @@ Once they want to connect to the endpoint server, the system executes ssh comman
 
 ## Requirements
 
-* Fresh CentOS 7 / Ubuntu 16.04 / Debian 9 setup
+* CentOS 7 / Ubuntu 16.04 / Debian 9 setup
 * [Ansible](http://docs.ansible.com/ansible/intro_installation.html) 2.3+ for
 install or update
 
