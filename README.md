@@ -47,7 +47,7 @@ edit
 and run:
 ```
 cd ansible
-ansible-playbook main.yml
+ansible-playbook main.yml -e redis_pass=REDIS_PASSWORD
 ```
 
 and restart server
@@ -88,6 +88,7 @@ MaxStartups 48:20:300
 TCPKeepAlive yes
 ClientAliveInterval 36
 ClientAliveCountMax 2400
+UsePAM yes
 ```
 
 ```
@@ -202,7 +203,7 @@ export ISOLATE_BACKEND;
 ISOLATE_REDIS_HOST="127.0.0.1";
 ISOLATE_REDIS_PORT="6379";
 ISOLATE_REDIS_DB=0;
-ISOLATE_REDIS_PASS="te2uth4dohLi8i"; # ansible/roles/redis/vars/main.yml
+ISOLATE_REDIS_PASS=<REDIS_PASSWORD>; # ansible/roles/redis/vars/main.yml
 export ISOLATE_REDIS_HOST;
 export ISOLATE_REDIS_PORT;
 export ISOLATE_REDIS_PASS;
@@ -240,7 +241,7 @@ add `support` user on server via auto-generated helper:
 $ add-support-user-helper
 
 SUPPORT_USER="support"
-KEY="<YOU KEY HERE>"
+KEY="<content of /home/auth/.ssh/id_rsa.pub>"
 
 useradd -m ${SUPPORT_USER}
 mkdir /home/${SUPPORT_USER}/.ssh
@@ -396,7 +397,7 @@ also with all logs, `ssh.py` creates `*.meta` files with JSON object.
 
 ## SSH Client configuration
 
-`configs/defaults.conf`
+`/opt/auth/configs/defaults.conf`
 ```
 Host *
     StrictHostKeyChecking no
