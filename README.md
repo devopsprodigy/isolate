@@ -461,15 +461,3 @@ export ISOLATE_BLIND
 ## Debug options
 `redis-dev` - open redis-cli with current `$ISOLATE_REDIS_PASS`
 `--debug` - argument in all helpers
-
-### Road Map
-
-* Kibana logging
-* Servers tags
-* Web-Hooks
-* NewRelic support
-* Ansible inventory generate script
-* SELinux Support
-* Encrypted block device setup How-To
-* Paranoic setup
-* [Ideas?](mailto:ilya.yakovlev@me.com)
