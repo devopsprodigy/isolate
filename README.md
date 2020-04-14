@@ -4,10 +4,8 @@
 [![Telegram Url](https://img.shields.io/badge/Telegram-chat-blue?logo=telegram)](https://t.me/isolate_bastion)
 [![Project Site](https://img.shields.io/badge/Project-site-red)](https://devopsprodigy.com/products/isolate)
 
+![Image](logo.jpg)
 
-
-
-![Image](main.png)
 
 AUTHENTICATION SERVER 
 
@@ -307,26 +305,13 @@ Host config override per project setting.
 
 ### S - aka search
 
-```
-[auth1][~]# s aws
-
-lotr
-------
-100009  | 4.1.1.1          | aws-eu-prod
-
-powerrangers
-------
-100007  | 3.1.1.1          | aws-eu-prod
-100008  | 3.1.1.2          | aws-eu-reserve
-
-------
-Total: 3
-
-[auth1][~]#
-```
+/home/sergeisporyshev/Downloads/ITSumma Messenger/Isolate_p_Монтажная область 1.jpg
 
 
 ### G - aka go
+
+![Image](img1.png)
+
 
 simple usage (just go to any server by ip with default user/port/key):
 ```
