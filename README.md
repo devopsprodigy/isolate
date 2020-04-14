@@ -197,7 +197,7 @@ append to
 
 `/etc/bashrc` (`/etc/bash.bashrc` for debian/ubuntu):
 ```
-ISOLATE_BACKEND=redis; # or zabbix
+ISOLATE_BACKEND=redis; 
 export ISOLATE_BACKEND;
 ```
 
@@ -214,16 +214,6 @@ export ISOLATE_REDIS_PASS;
 export ISOLATE_REDIS_DB;
 ```
 
-#### Zabbix
-
-```
-ISOLATE_ZABBIX_URL="http://zabbix.srv"
-ISOLATE_ZABBIX_USER="isolate"
-ISOLATE_ZABBIX_PASS="zabbixpass"
-export ISOLATE_ZABBIX_URL;
-export ISOLATE_ZABBIX_USER;
-export ISOLATE_ZABBIX_PASS;
-```
 
 
 Load changes
@@ -275,7 +265,7 @@ auth-add-host --project powerrangers --server-name aws-eu-prod --ip 3.1.1.1
 auth-add-host --project powerrangers --server-name aws-eu-reserve --ip 3.1.1.2
 
 # custom host/port/user options
-auth-add-host --project drugstore --server-name aws-eu-prod --ip 4.1.1.1 --port 25 --user dealer --nosudo
+auth-add-host --project lotr --server-name aws-eu-prod --ip 4.1.1.1 --port 25 --user dealer --nosudo
 ```
 
 
@@ -320,7 +310,7 @@ Host config override per project setting.
 ```
 [auth1][~]# s aws
 
-drugstore
+lotr
 ------
 100009  | 4.1.1.1          | aws-eu-prod
 
