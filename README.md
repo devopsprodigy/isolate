@@ -1,7 +1,11 @@
 # isolate
 
-[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/isolate_bastion/Lobby)
-[![Telegram chat](https://camo.githubusercontent.com/5cd5c1cbf375ddec552e7224d81c3da18a11beb3/68747470733a2f2f706174726f6c617669612e6769746875622e696f2f74656c656772616d2d62616467652f636861742e706e67)](https://t.me/joinchat/BK6B5UH2Wfqie3fsJz_dIg)
+[![Slack Url](https://img.shields.io/badge/Slack-channel-red?logo=slack)](https://join.slack.com/t/devopsprodigygroup/shared_invite/zt-anhohkyu-gA4MGwVX9pxme6drVkH7RQ)
+[![Telegram Url](https://img.shields.io/badge/Telegram-chat-blue?logo=telegram)](https://t.me/isolate_bastion)
+[![Project Site](https://img.shields.io/badge/Project-site-red)](https://devopsprodigy.com/products/isolate)
+
+
+
 
 ![Image](main.png)
 
