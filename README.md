@@ -4,7 +4,7 @@
 [![Slack Url](https://img.shields.io/badge/Slack-channel-red?logo=slack)](https://join.slack.com/t/devopsprodigygroup/shared_invite/zt-anhohkyu-gA4MGwVX9pxme6drVkH7RQ)
 [![Telegram Url](https://img.shields.io/badge/Telegram-chat-blue?logo=telegram)](https://t.me/isolate_bastion)
 [![Project Site](https://img.shields.io/badge/Project-site-red)](https://devopsprodigy.com/products/isolate)
-[![License](https://img.shields.io/badge/License-AGPL--3.0-blue)](https://github.com/devopsprodigy/isolate/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/License-AGPL-blue)](https://github.com/devopsprodigy/isolate/blob/master/LICENSE)
 
 ![Image](logo.jpg)
 
