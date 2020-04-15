@@ -305,7 +305,7 @@ Host config override per project setting.
 
 ### S - aka search
 
-/home/sergeisporyshev/Downloads/ITSumma Messenger/Isolate_p_Монтажная область 1.jpg
+![Image](img2.png)
 
 
 ### G - aka go
