@@ -1,4 +1,5 @@
-# isolate
+# ISOLATE - AUTHENTICATION SERVER 
+
 
 [![Slack Url](https://img.shields.io/badge/Slack-channel-red?logo=slack)](https://join.slack.com/t/devopsprodigygroup/shared_invite/zt-anhohkyu-gA4MGwVX9pxme6drVkH7RQ)
 [![Telegram Url](https://img.shields.io/badge/Telegram-chat-blue?logo=telegram)](https://t.me/isolate_bastion)
@@ -8,7 +9,6 @@
 ![Image](logo.jpg)
 
 
-AUTHENTICATION SERVER 
 
 The idea behind Isolate is that we should somehow manage how do people get access to our servers.
 How can we make this process more secure?
