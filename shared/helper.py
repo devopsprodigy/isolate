@@ -57,12 +57,13 @@ def init_args():
 
     arg_parser = argparse.ArgumentParser(prog='helper', epilog='------',
                                          description='Auth shell helper')
-    arg_parser.add_argument('action', type=str, nargs=1, choices=['search', 'go', 'cron'])
-    arg_parser.add_argument('sargs', type=str, nargs='+',
+    arg_parser.add_argument('action', type=str, nargs=1, choices=['search', 'go', 'cron', 'projects'])
+    arg_parser.add_argument('sargs', type=str, nargs='*',
                             help='[search server_id | go project | go project server_name]')
     arg_parser.add_argument('--helper-debug', action='store_true')
     arg_parser.add_argument_group('Search', 's <query> [opts]')
     arg_parser.add_argument_group('Go', 'g <project|host> [server_name|server_ip] [opts]')
+    arg_parser.add_argument_group('Projects', 'p [opts]')
 
     # Unknown args bypassed to ssh.py wrapper
     args, unknown_args = arg_parser.parse_known_args()
@@ -495,6 +496,19 @@ class AuthHelper(object):
 
         return result
 
+    def projects_list(self, **kwargs):
+        time_search_start = time()
+        result = kwargs.pop('source', self.hosts_dump)
+
+        kwargs.update(search_time=float(time() - time_search_start))
+
+        if kwargs.get('sort'):
+            result = sorted(result, key=operator.itemgetter(kwargs.get('sort')))
+
+        LOGGER.debug(kwargs)
+
+        return result
+
     def colorize(self, text, color=None):
         colors = dict(
             header='\033[95m',
@@ -571,6 +585,7 @@ class AuthHelper(object):
     def print_hosts(self, hosts, **kwargs):
         title = kwargs.get('title', True)  # Print project title by default
         total = kwargs.get('total', True)
+        as_list = kwargs.get('as_list', False)
         current_project = None  # stub
         counter = 0
 
@@ -579,7 +594,9 @@ class AuthHelper(object):
         else:
             ambiguous = kwargs.get('ambiguous', False)  # Hosts list is ambiguous
 
-        if ambiguous:
+        if as_list and len(hosts) == 0:
+            self.print_p(self.colorize('\n  No projects found', color='warn'))
+        elif ambiguous:
             if len(hosts) == 0:
                 self.print_p(self.colorize('\n  No servers found by this query: ', color='warn')
                              + ' '.join(self.args.sargs))
@@ -749,6 +766,9 @@ def main():
         # update autocomplete projects_list
         LOGGER.debug(helper.projects)
         helper.autocomplete_update()
+    elif args.action[0] == 'projects':
+        projects = helper.projects_list(fields=['project_name'])
+        helper.print_hosts(projects, as_list=True)
     else:
         LOGGER.critical('Unknown action: ' + args.action[0])
 
