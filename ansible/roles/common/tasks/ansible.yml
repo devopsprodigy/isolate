@@ -1,6 +1,6 @@
 ---
 - name: Instaling ansible apt reqs...
-  apt: name={{ item }} state=installed update_cache=yes
+  apt: name={{ item }} state=present update_cache=yes
   with_items:
   - python-pip
   - python-dev

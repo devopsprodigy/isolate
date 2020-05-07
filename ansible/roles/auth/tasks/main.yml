@@ -6,5 +6,5 @@
   tags: cron
 
 - name: Installing GAWK...
-  apt: name=gawk state=installed
+  apt: name=gawk state=present
   when: ansible_os_family == "Debian"
