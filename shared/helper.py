@@ -498,16 +498,23 @@ class AuthHelper(object):
 
     def projects_list(self, **kwargs):
         time_search_start = time()
-        result = kwargs.pop('source', self.hosts_dump)
+        projects = {}
+        hosts = kwargs.pop('source', self.hosts_dump)
 
         kwargs.update(search_time=float(time() - time_search_start))
 
         if kwargs.get('sort'):
-            result = sorted(result, key=operator.itemgetter(kwargs.get('sort')))
+            hosts = sorted(hosts, key=operator.itemgetter(kwargs.get('sort')))
 
         LOGGER.debug(kwargs)
 
-        return result
+        for host in hosts:
+            if host['project_name'] in projects:
+                projects[host['project_name']] += 1
+            else:
+                projects[host['project_name']] = 1
+
+        return projects
 
     def colorize(self, text, color=None):
         colors = dict(
@@ -585,7 +592,6 @@ class AuthHelper(object):
     def print_hosts(self, hosts, **kwargs):
         title = kwargs.get('title', True)  # Print project title by default
         total = kwargs.get('total', True)
-        as_list = kwargs.get('as_list', False)
         current_project = None  # stub
         counter = 0
 
@@ -594,9 +600,7 @@ class AuthHelper(object):
         else:
             ambiguous = kwargs.get('ambiguous', False)  # Hosts list is ambiguous
 
-        if as_list and len(hosts) == 0:
-            self.print_p(self.colorize('\n  No projects found', color='warn'))
-        elif ambiguous:
+        if ambiguous:
             if len(hosts) == 0:
                 self.print_p(self.colorize('\n  No servers found by this query: ', color='warn')
                              + ' '.join(self.args.sargs))
@@ -641,6 +645,24 @@ class AuthHelper(object):
 
         elif total:
             total_tpl = '\n------\nTotal: {0}\n'.format(counter)
+            self.print_p(total_tpl)
+        else:
+            self.print_p('')
+
+    def print_projects(self, projects, **kwargs):
+        total = kwargs.get('total', True)
+
+        if len(projects) == 0:
+            self.print_p(self.colorize('\n  No projects found', color='warn'))
+        else:
+            self.print_p('')
+
+        for project in projects:
+            title_tpl = '{0}: {1}'.format(self.colorize(project, color='project_name'), projects[project])
+            self.print_p(title_tpl)
+
+        if total:
+            total_tpl = '\n------\nTotal: {0}\n'.format(len(projects))
             self.print_p(total_tpl)
         else:
             self.print_p('')
@@ -767,8 +789,8 @@ def main():
         LOGGER.debug(helper.projects)
         helper.autocomplete_update()
     elif args.action[0] == 'projects':
-        projects = helper.projects_list(fields=['project_name'])
-        helper.print_hosts(projects, as_list=True)
+        projects = helper.projects_list()
+        helper.print_projects(projects)
     else:
         LOGGER.critical('Unknown action: ' + args.action[0])
 
