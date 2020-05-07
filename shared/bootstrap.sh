@@ -103,6 +103,11 @@ s () {
     fi
 }
 
+p () {
+    deploy_lock
+    "${ISOLATE_HELPER}" projects;
+}
+
 auth-add-user () {
     if [[ $# -eq 0 ]] ; then
         echo -e "\\n  Usage: auth-add-user <username> \\n";

@@ -57,12 +57,13 @@ def init_args():
 
     arg_parser = argparse.ArgumentParser(prog='helper', epilog='------',
                                          description='Auth shell helper')
-    arg_parser.add_argument('action', type=str, nargs=1, choices=['search', 'go', 'cron'])
-    arg_parser.add_argument('sargs', type=str, nargs='+',
+    arg_parser.add_argument('action', type=str, nargs=1, choices=['search', 'go', 'cron', 'projects'])
+    arg_parser.add_argument('sargs', type=str, nargs='*',
                             help='[search server_id | go project | go project server_name]')
     arg_parser.add_argument('--helper-debug', action='store_true')
     arg_parser.add_argument_group('Search', 's <query> [opts]')
     arg_parser.add_argument_group('Go', 'g <project|host> [server_name|server_ip] [opts]')
+    arg_parser.add_argument_group('Projects', 'p [opts]')
 
     # Unknown args bypassed to ssh.py wrapper
     args, unknown_args = arg_parser.parse_known_args()
@@ -495,6 +496,26 @@ class AuthHelper(object):
 
         return result
 
+    def projects_list(self, **kwargs):
+        time_search_start = time()
+        projects = {}
+        hosts = kwargs.pop('source', self.hosts_dump)
+
+        kwargs.update(search_time=float(time() - time_search_start))
+
+        if kwargs.get('sort'):
+            hosts = sorted(hosts, key=operator.itemgetter(kwargs.get('sort')))
+
+        LOGGER.debug(kwargs)
+
+        for host in hosts:
+            if host['project_name'] in projects:
+                projects[host['project_name']] += 1
+            else:
+                projects[host['project_name']] = 1
+
+        return projects
+
     def colorize(self, text, color=None):
         colors = dict(
             header='\033[95m',
@@ -628,6 +649,24 @@ class AuthHelper(object):
         else:
             self.print_p('')
 
+    def print_projects(self, projects, **kwargs):
+        total = kwargs.get('total', True)
+
+        if len(projects) == 0:
+            self.print_p(self.colorize('\n  No projects found', color='warn'))
+        else:
+            self.print_p('')
+
+        for project in projects:
+            title_tpl = '{0}: {1}'.format(self.colorize(project, color='project_name'), projects[project])
+            self.print_p(title_tpl)
+
+        if total:
+            total_tpl = '\n------\nTotal: {0}\n'.format(len(projects))
+            self.print_p(total_tpl)
+        else:
+            self.print_p('')
+
     def autocomplete_update(self):
         self.db.put_projects_list()
         for project in self.projects:
@@ -749,6 +788,9 @@ def main():
         # update autocomplete projects_list
         LOGGER.debug(helper.projects)
         helper.autocomplete_update()
+    elif args.action[0] == 'projects':
+        projects = helper.projects_list()
+        helper.print_projects(projects)
     else:
         LOGGER.critical('Unknown action: ' + args.action[0])
 
